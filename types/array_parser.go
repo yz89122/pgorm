@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/yz89122/pgorm/v10/internal/parser"
+	"github.com/yz89122/pgorm/v12/internal/parser"
 )
 
 var errEndOfArray = errors.New("pg: end of array")

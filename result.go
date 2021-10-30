@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"strconv"
 
-	"github.com/yz89122/pgorm/v10/internal"
-	"github.com/yz89122/pgorm/v10/orm"
+	"github.com/yz89122/pgorm/v12/internal"
+	"github.com/yz89122/pgorm/v12/orm"
 )
 
 // Result summarizes an executed SQL command.

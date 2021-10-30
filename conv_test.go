@@ -13,10 +13,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yz89122/pgorm/v10"
-	"github.com/yz89122/pgorm/v10/orm"
-	"github.com/yz89122/pgorm/v10/pgjson"
-	"github.com/yz89122/pgorm/v10/types"
+	pg "github.com/yz89122/pgorm/v12"
+	"github.com/yz89122/pgorm/v12/orm"
+	"github.com/yz89122/pgorm/v12/pgjson"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 type JSONMap map[string]interface{}

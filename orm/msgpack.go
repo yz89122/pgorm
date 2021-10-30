@@ -5,7 +5,7 @@ import (
 
 	"github.com/vmihailenco/msgpack/v5"
 
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 func msgpackAppender(_ reflect.Type) types.AppenderFunc {

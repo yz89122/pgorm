@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/yz89122/pgorm/v10/pgjson"
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/pgjson"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 var jsonbTests = []struct {

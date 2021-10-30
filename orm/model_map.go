@@ -1,7 +1,7 @@
 package orm
 
 import (
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 type mapModel struct {

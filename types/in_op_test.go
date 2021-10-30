@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 func TestInOp(t *testing.T) {

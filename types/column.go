@@ -3,8 +3,8 @@ package types
 import (
 	"encoding/json"
 
-	"github.com/yz89122/pgorm/v10/internal/pool"
-	"github.com/yz89122/pgorm/v10/pgjson"
+	"github.com/yz89122/pgorm/v12/internal/pool"
+	"github.com/yz89122/pgorm/v12/pgjson"
 )
 
 const (

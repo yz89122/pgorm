@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/yz89122/pgorm/v10"
+	pg "github.com/yz89122/pgorm/v12"
 )
 
 // models

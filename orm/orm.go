@@ -7,7 +7,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 // ColumnScanner is used to scan column values.

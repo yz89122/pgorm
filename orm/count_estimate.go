@@ -3,7 +3,7 @@ package orm
 import (
 	"fmt"
 
-	"github.com/yz89122/pgorm/v10/internal"
+	"github.com/yz89122/pgorm/v12/internal"
 )
 
 // Placeholder that is replaced with count(*).

@@ -1,4 +1,4 @@
-module github.com/yz89122/pgorm/v10
+module github.com/yz89122/pgorm/v12
 
 go 1.11
 
