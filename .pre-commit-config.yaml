@@ -23,6 +23,6 @@ repos:
     - id: validate-toml
     - id: no-go-testing
     - id: golangci-lint
-      args: [--config, .golangci.yaml, --fix]
+      args: [--config, .golangci.yaml]
     - id: go-build
     - id: go-mod-tidy
