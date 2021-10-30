@@ -1,6 +1,7 @@
 package pg
 
 import (
+	"errors"
 	"net"
 
 	"github.com/yz89122/pgorm/v12/internal"
@@ -39,26 +40,33 @@ func isBadConn(err error, allowTimeout bool) bool {
 	if err == nil {
 		return false
 	}
-	if _, ok := err.(internal.Error); ok {
+	var internalErr internal.Error
+	if ok := errors.As(err, &internalErr); ok {
 		return false
 	}
-	if pgErr, ok := err.(Error); ok {
+	var pgErr Error
+	if ok := errors.As(err, &pgErr); ok {
 		switch pgErr.Field('V') {
 		case "FATAL", "PANIC":
+
 			return true
 		}
 		switch pgErr.Field('C') {
 		case "25P02", // current transaction is aborted
 			"57014": // canceling statement due to user request
+
 			return true
 		}
+
 		return false
 	}
 	if allowTimeout {
-		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+		var netErr net.Error
+		if ok := errors.As(err, &netErr); ok && netErr.Timeout() {
 			return !netErr.Temporary()
 		}
 	}
+
 	return true
 }
 

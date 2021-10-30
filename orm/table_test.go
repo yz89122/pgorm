@@ -15,6 +15,7 @@ type A struct {
 }
 
 func (A) Method() int {
+
 	return 10
 }
 

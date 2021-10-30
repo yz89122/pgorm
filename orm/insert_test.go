@@ -294,5 +294,6 @@ var _ = Describe("Insert", func() {
 
 func insertQueryString(q *Query) string {
 	ins := NewInsertQuery(q)
+
 	return queryString(ins)
 }

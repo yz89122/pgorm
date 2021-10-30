@@ -31,6 +31,7 @@ func init() {
 }
 
 func connect() *pg.DB {
+
 	return pg.Connect(pgOptions())
 }
 
@@ -141,6 +142,7 @@ func ExampleDB_Begin() {
 	incrInTx := func(db *pg.DB) error {
 		tx, err := db.Begin()
 		if err != nil {
+
 			return err
 		}
 		// Rollback tx on error.
@@ -150,6 +152,7 @@ func ExampleDB_Begin() {
 		_, err = tx.QueryOne(
 			pg.Scan(&counter), `SELECT counter FROM tx_test FOR UPDATE`)
 		if err != nil {
+
 			return err
 		}
 
@@ -157,6 +160,7 @@ func ExampleDB_Begin() {
 
 		_, err = tx.Exec(`UPDATE tx_test SET counter = ?`, counter)
 		if err != nil {
+
 			return err
 		}
 
@@ -186,17 +190,20 @@ func ExampleDB_RunInTransaction() {
 
 	incrInTx := func(db *pg.DB) error {
 		// Transaction is automatically rolled back on error.
+
 		return db.RunInTransaction(ctx, func(tx *pg.Tx) error {
 			var counter int
 			_, err := tx.QueryOne(
 				pg.Scan(&counter), `SELECT counter FROM tx_test FOR UPDATE`)
 			if err != nil {
+
 				return err
 			}
 
 			counter++
 
 			_, err = tx.Exec(`UPDATE tx_test SET counter = ?`, counter)
+
 			return err
 		})
 	}

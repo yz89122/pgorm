@@ -67,21 +67,27 @@ func (m *structTableModel) AppendParam(fmter QueryFormatter, b []byte, name stri
 	switch name {
 	case "TableName":
 		b = fmter.FormatQuery(b, string(m.table.SQLName))
+
 		return b, true
 	case "TableAlias":
 		b = append(b, m.table.Alias...)
+
 		return b, true
 	case "TableColumns":
 		b = appendColumns(b, m.table.Alias, m.table.Fields)
+
 		return b, true
 	case "Columns":
 		b = appendColumns(b, "", m.table.Fields)
+
 		return b, true
 	case "TablePKs":
 		b = appendColumns(b, m.table.Alias, m.table.PKs)
+
 		return b, true
 	case "PKs":
 		b = appendColumns(b, "", m.table.PKs)
+
 		return b, true
 	}
 
@@ -122,6 +128,7 @@ func (m *structTableModel) initStruct() error {
 	switch m.strct.Kind() {
 	case reflect.Invalid:
 		m.structInitErr = errModelNil
+
 		return m.structInitErr
 	case reflect.Interface:
 		m.strct = m.strct.Elem()
@@ -169,6 +176,7 @@ func (m *structTableModel) BeforeScan(ctx context.Context) error {
 	if !m.table.hasFlag(beforeScanHookFlag) {
 		return nil
 	}
+
 	return callBeforeScanHook(ctx, m.strct.Addr())
 }
 
@@ -201,6 +209,7 @@ func (m *structTableModel) AfterSelect(ctx context.Context) error {
 	if m.table.hasFlag(afterSelectHookFlag) {
 		return callAfterSelectHook(ctx, m.strct.Addr())
 	}
+
 	return nil
 }
 
@@ -208,6 +217,7 @@ func (m *structTableModel) BeforeInsert(ctx context.Context) (context.Context, e
 	if m.table.hasFlag(beforeInsertHookFlag) {
 		return callBeforeInsertHook(ctx, m.strct.Addr())
 	}
+
 	return ctx, nil
 }
 
@@ -215,6 +225,7 @@ func (m *structTableModel) AfterInsert(ctx context.Context) error {
 	if m.table.hasFlag(afterInsertHookFlag) {
 		return callAfterInsertHook(ctx, m.strct.Addr())
 	}
+
 	return nil
 }
 
@@ -222,6 +233,7 @@ func (m *structTableModel) BeforeUpdate(ctx context.Context) (context.Context, e
 	if m.table.hasFlag(beforeUpdateHookFlag) && !m.IsNil() {
 		return callBeforeUpdateHook(ctx, m.strct.Addr())
 	}
+
 	return ctx, nil
 }
 
@@ -229,6 +241,7 @@ func (m *structTableModel) AfterUpdate(ctx context.Context) error {
 	if m.table.hasFlag(afterUpdateHookFlag) && !m.IsNil() {
 		return callAfterUpdateHook(ctx, m.strct.Addr())
 	}
+
 	return nil
 }
 
@@ -236,6 +249,7 @@ func (m *structTableModel) BeforeDelete(ctx context.Context) (context.Context, e
 	if m.table.hasFlag(beforeDeleteHookFlag) && !m.IsNil() {
 		return callBeforeDeleteHook(ctx, m.strct.Addr())
 	}
+
 	return ctx, nil
 }
 
@@ -243,6 +257,7 @@ func (m *structTableModel) AfterDelete(ctx context.Context) error {
 	if m.table.hasFlag(afterDeleteHookFlag) && !m.IsNil() {
 		return callAfterDeleteHook(ctx, m.strct.Addr())
 	}
+
 	return nil
 }
 
@@ -256,6 +271,7 @@ func (m *structTableModel) ScanColumn(
 	if m.table.hasFlag(discardUnknownColumnsFlag) || col.Name[0] == '_' {
 		return nil
 	}
+
 	return fmt.Errorf(
 		"pg: can't find column=%s in %s "+
 			"(prefix the column with underscore or use discard_unknown_columns)",
@@ -281,11 +297,13 @@ func (m *structTableModel) scanColumn(col types.ColumnInfo, rd types.Reader, n i
 		if join := m.GetJoin(joinName); join != nil {
 			joinCol := col
 			joinCol.Name = fieldName
+
 			return join.JoinModel.scanColumn(joinCol, rd, n)
 		}
 		if m.table.ModelName == joinName {
 			joinCol := col
 			joinCol.Name = fieldName
+
 			return m.scanColumn(joinCol, rd, n)
 		}
 	}
@@ -305,6 +323,7 @@ func (m *structTableModel) GetJoin(name string) *join {
 			return j
 		}
 	}
+
 	return nil
 }
 
@@ -314,6 +333,7 @@ func (m *structTableModel) GetJoins() []join {
 
 func (m *structTableModel) AddJoin(j join) *join {
 	m.joins = append(m.joins, j)
+
 	return &m.joins[len(m.joins)-1]
 }
 
@@ -338,6 +358,7 @@ func (m *structTableModel) join(
 		rel, ok := currJoin.JoinModel.Table().Relations[name]
 		if !ok {
 			hasColumnName = true
+
 			break
 		}
 
@@ -387,6 +408,7 @@ func (m *structTableModel) join(
 
 func (m *structTableModel) setSoftDeleteField() error {
 	fv := m.table.SoftDeleteField.Value(m.strct)
+
 	return m.table.SetSoftDeleteField(fv)
 }
 
@@ -395,5 +417,6 @@ func splitColumn(s string) (string, string) {
 	if ind == -1 {
 		return "", s
 	}
+
 	return s[:ind], s[ind+2:]
 }

@@ -80,6 +80,7 @@ func (db *baseDB) startup(
 ) error {
 	err := cn.WithWriter(c, db.opt.WriteTimeout, func(wb *pool.WriteBuffer) error {
 		writeStartupMsg(wb, user, database, appName)
+
 		return nil
 	})
 	if err != nil {
@@ -116,6 +117,7 @@ func (db *baseDB) startup(
 				}
 			case readyForQueryMsg:
 				_, err := rd.ReadN(msgLen)
+
 				return err
 			case noticeResponseMsg:
 				// If we encounter a notice message from the server then we want to try to log it as it might be
@@ -131,8 +133,10 @@ func (db *baseDB) startup(
 				if err != nil {
 					return err
 				}
+
 				return e
 			default:
+
 				return fmt.Errorf("pg: unknown startup message response: %q", typ)
 			}
 		}
@@ -142,6 +146,7 @@ func (db *baseDB) startup(
 func (db *baseDB) enableSSL(c context.Context, cn *pool.Conn, tlsConf *tls.Config) error {
 	err := cn.WithWriter(c, db.opt.WriteTimeout, func(wb *pool.WriteBuffer) error {
 		writeSSLMsg(wb)
+
 		return nil
 	})
 	if err != nil {
@@ -156,6 +161,7 @@ func (db *baseDB) enableSSL(c context.Context, cn *pool.Conn, tlsConf *tls.Confi
 		if c != 'S' {
 			return errors.New("pg: SSL is not enabled on the server")
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -163,6 +169,7 @@ func (db *baseDB) enableSSL(c context.Context, cn *pool.Conn, tlsConf *tls.Confi
 	}
 
 	cn.SetNetConn(tls.Client(cn.NetConn(), tlsConf))
+
 	return nil
 }
 
@@ -176,14 +183,19 @@ func (db *baseDB) auth(
 
 	switch num {
 	case authenticationOK:
+
 		return nil
 	case authenticationCleartextPassword:
+
 		return db.authCleartext(c, cn, rd, password)
 	case authenticationMD5Password:
+
 		return db.authMD5(c, cn, rd, user, password)
 	case authenticationSASL:
+
 		return db.authSASL(c, cn, rd, user, password)
 	default:
+
 		return fmt.Errorf("pg: unknown authentication message response: %q", num)
 	}
 }
@@ -238,11 +250,13 @@ func (db *baseDB) authCleartext(
 ) error {
 	err := cn.WithWriter(c, db.opt.WriteTimeout, func(wb *pool.WriteBuffer) error {
 		writePasswordMsg(wb, password)
+
 		return nil
 	})
 	if err != nil {
 		return err
 	}
+
 	return readAuthOK(rd)
 }
 
@@ -257,6 +271,7 @@ func (db *baseDB) authMD5(
 	secret := "md5" + md5s(md5s(password+user)+string(b))
 	err = cn.WithWriter(c, db.opt.WriteTimeout, func(wb *pool.WriteBuffer) error {
 		writePasswordMsg(wb, secret)
+
 		return nil
 	})
 	if err != nil {
@@ -281,14 +296,17 @@ func readAuthOK(rd *pool.ReaderContext) error {
 		if c0 != 0 {
 			return fmt.Errorf("pg: unexpected authentication code: %q", c0)
 		}
+
 		return nil
 	case errorResponseMsg:
 		e, err := readError(rd)
 		if err != nil {
 			return err
 		}
+
 		return e
 	default:
+
 		return fmt.Errorf("pg: unknown password message response: %q", c)
 	}
 }
@@ -313,6 +331,7 @@ loop:
 		case sasl.ScramSha256Plus.Name:
 			// ignore
 		default:
+
 			return fmt.Errorf("got %q, wanted %q", s, sasl.ScramSha256.Name)
 		}
 	}
@@ -336,6 +355,7 @@ loop:
 			return err
 		}
 		wb.FinishMessage()
+
 		return nil
 	})
 	if err != nil {
@@ -374,6 +394,7 @@ loop:
 				return err
 			}
 			wb.FinishMessage()
+
 			return nil
 		})
 		if err != nil {
@@ -386,8 +407,10 @@ loop:
 		if err != nil {
 			return err
 		}
+
 		return e
 	default:
+
 		return fmt.Errorf(
 			"pg: SASL: got %q, wanted %q", typ, authenticationSASLContinueMsg)
 	}
@@ -428,8 +451,10 @@ func readAuthSASLFinal(rd *pool.ReaderContext, client *sasl.Negotiator) error {
 		if err != nil {
 			return err
 		}
+
 		return e
 	default:
+
 		return fmt.Errorf(
 			"pg: SASL: got %q, wanted %q", c, authenticationSASLFinalMsg)
 	}
@@ -440,6 +465,7 @@ func readAuthSASLFinal(rd *pool.ReaderContext, client *sasl.Negotiator) error {
 func md5s(s string) string {
 	//nolint
 	h := md5.Sum([]byte(s))
+
 	return hex.EncodeToString(h[:])
 }
 
@@ -500,6 +526,7 @@ func writeQueryMsg(
 		return err
 	}
 	buf.FinishMessage()
+
 	return nil
 }
 
@@ -509,6 +536,7 @@ func appendQuery(fmter orm.QueryFormatter, dst []byte, query interface{}, params
 		if v, ok := fmter.(*orm.Formatter); ok {
 			fmter = v.WithModel(query)
 		}
+
 		return query.AppendQuery(fmter, dst)
 	case string:
 		if len(params) > 0 {
@@ -520,8 +548,10 @@ func appendQuery(fmter orm.QueryFormatter, dst []byte, query interface{}, params
 				}
 			}
 		}
+
 		return fmter.FormatQuery(dst, query, params...), nil
 	default:
+
 		return nil, fmt.Errorf("pg: can't append %T", query)
 	}
 }
@@ -583,6 +613,7 @@ func readParseDescribeSync(rd *pool.ReaderContext) ([]types.ColumnInfo, error) {
 			if firstErr != nil {
 				return nil, firstErr
 			}
+
 			return columns, err
 		case errorResponseMsg:
 			e, err := readError(rd)
@@ -601,6 +632,7 @@ func readParseDescribeSync(rd *pool.ReaderContext) ([]types.ColumnInfo, error) {
 				return nil, err
 			}
 		default:
+
 			return nil, fmt.Errorf("pg: readParseDescribeSync: unexpected message %q", c)
 		}
 	}
@@ -652,12 +684,14 @@ func readCloseCompleteMsg(rd *pool.ReaderContext) error {
 		switch c {
 		case closeCompleteMsg:
 			_, err := rd.ReadN(msgLen)
+
 			return err
 		case errorResponseMsg:
 			e, err := readError(rd)
 			if err != nil {
 				return err
 			}
+
 			return e
 		case noticeResponseMsg:
 			if err := logNotice(rd, msgLen); err != nil {
@@ -668,6 +702,7 @@ func readCloseCompleteMsg(rd *pool.ReaderContext) error {
 				return err
 			}
 		default:
+
 			return fmt.Errorf("pg: readCloseCompleteMsg: unexpected message %q", c)
 		}
 	}
@@ -699,6 +734,7 @@ func readSimpleQuery(rd *pool.ReaderContext) (*result, error) {
 			if firstErr != nil {
 				return nil, firstErr
 			}
+
 			return &res, nil
 		case rowDescriptionMsg:
 			_, err := rd.ReadN(msgLen)
@@ -731,6 +767,7 @@ func readSimpleQuery(rd *pool.ReaderContext) (*result, error) {
 				return nil, err
 			}
 		default:
+
 			return nil, fmt.Errorf("pg: readSimpleQuery: unexpected message %q", c)
 		}
 	}
@@ -773,6 +810,7 @@ func readExtQuery(rd *pool.ReaderContext) (*result, error) {
 			if firstErr != nil {
 				return nil, firstErr
 			}
+
 			return &res, nil
 		case errorResponseMsg:
 			e, err := readError(rd)
@@ -795,6 +833,7 @@ func readExtQuery(rd *pool.ReaderContext) (*result, error) {
 				return nil, err
 			}
 		default:
+
 			return nil, fmt.Errorf("pg: readExtQuery: unexpected message %q", c)
 		}
 	}
@@ -896,6 +935,7 @@ func newModel(mod interface{}) (orm.Model, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return m, m.Init()
 }
 
@@ -957,6 +997,7 @@ func readSimpleQueryData(
 			if firstErr != nil {
 				return nil, firstErr
 			}
+
 			return &res, nil
 		case errorResponseMsg:
 			e, err := readError(rd)
@@ -979,6 +1020,7 @@ func readSimpleQueryData(
 				return nil, err
 			}
 		default:
+
 			return nil, fmt.Errorf("pg: readSimpleQueryData: unexpected message %q", c)
 		}
 	}
@@ -1041,6 +1083,7 @@ func readExtQueryData(
 			if firstErr != nil {
 				return nil, firstErr
 			}
+
 			return &res, nil
 		case errorResponseMsg:
 			e, err := readError(rd)
@@ -1059,6 +1102,7 @@ func readExtQueryData(
 				return nil, err
 			}
 		default:
+
 			return nil, fmt.Errorf("pg: readExtQueryData: unexpected message %q", c)
 		}
 	}
@@ -1075,6 +1119,7 @@ func readCopyInResponse(rd *pool.ReaderContext) error {
 		switch c {
 		case copyInResponseMsg:
 			_, err := rd.ReadN(msgLen)
+
 			return err
 		case errorResponseMsg:
 			e, err := readError(rd)
@@ -1089,6 +1134,7 @@ func readCopyInResponse(rd *pool.ReaderContext) error {
 			if err != nil {
 				return err
 			}
+
 			return firstErr
 		case noticeResponseMsg:
 			if err := logNotice(rd, msgLen); err != nil {
@@ -1099,6 +1145,7 @@ func readCopyInResponse(rd *pool.ReaderContext) error {
 				return err
 			}
 		default:
+
 			return fmt.Errorf("pg: readCopyInResponse: unexpected message %q", c)
 		}
 	}
@@ -1115,6 +1162,7 @@ func readCopyOutResponse(rd *pool.ReaderContext) error {
 		switch c {
 		case copyOutResponseMsg:
 			_, err := rd.ReadN(msgLen)
+
 			return err
 		case errorResponseMsg:
 			e, err := readError(rd)
@@ -1129,6 +1177,7 @@ func readCopyOutResponse(rd *pool.ReaderContext) error {
 			if err != nil {
 				return err
 			}
+
 			return firstErr
 		case noticeResponseMsg:
 			if err := logNotice(rd, msgLen); err != nil {
@@ -1139,6 +1188,7 @@ func readCopyOutResponse(rd *pool.ReaderContext) error {
 				return err
 			}
 		default:
+
 			return fmt.Errorf("pg: readCopyOutResponse: unexpected message %q", c)
 		}
 	}
@@ -1157,7 +1207,7 @@ func readCopyData(rd *pool.ReaderContext, w io.Writer) (*result, error) {
 		case copyDataMsg:
 			for msgLen > 0 {
 				b, err := rd.ReadN(msgLen)
-				if err != nil && err != bufio.ErrBufferFull {
+				if err != nil && !errors.Is(err, bufio.ErrBufferFull) {
 					return nil, err
 				}
 
@@ -1189,12 +1239,14 @@ func readCopyData(rd *pool.ReaderContext, w io.Writer) (*result, error) {
 			if firstErr != nil {
 				return nil, firstErr
 			}
+
 			return &res, nil
 		case errorResponseMsg:
 			e, err := readError(rd)
 			if err != nil {
 				return nil, err
 			}
+
 			return nil, e
 		case noticeResponseMsg:
 			if err := logNotice(rd, msgLen); err != nil {
@@ -1205,6 +1257,7 @@ func readCopyData(rd *pool.ReaderContext, w io.Writer) (*result, error) {
 				return nil, err
 			}
 		default:
+
 			return nil, fmt.Errorf("pg: readCopyData: unexpected message %q", c)
 		}
 	}
@@ -1214,6 +1267,7 @@ func writeCopyData(buf *pool.WriteBuffer, r io.Reader) error {
 	buf.StartMessage(copyDataMsg)
 	_, err := buf.ReadFrom(r)
 	buf.FinishMessage()
+
 	return err
 }
 
@@ -1248,6 +1302,7 @@ func readReadyForQuery(rd *pool.ReaderContext) (*result, error) {
 			if firstErr != nil {
 				return nil, firstErr
 			}
+
 			return &res, nil
 		case errorResponseMsg:
 			e, err := readError(rd)
@@ -1266,6 +1321,7 @@ func readReadyForQuery(rd *pool.ReaderContext) (*result, error) {
 				return nil, err
 			}
 		default:
+
 			return nil, fmt.Errorf("pg: readReadyForQueryOrError: unexpected message %q", c)
 		}
 	}
@@ -1294,6 +1350,7 @@ func readNotification(rd *pool.ReaderContext) (channel, payload string, err erro
 			if err != nil {
 				return "", "", err
 			}
+
 			return "", "", e
 		case noticeResponseMsg:
 			if err := logNotice(rd, msgLen); err != nil {
@@ -1312,8 +1369,10 @@ func readNotification(rd *pool.ReaderContext) (channel, payload string, err erro
 			if err != nil {
 				return "", "", err
 			}
+
 			return channel, payload, nil
 		default:
+
 			return "", "", fmt.Errorf("pg: readNotification: unexpected message %q", c)
 		}
 	}
@@ -1324,6 +1383,7 @@ var terminateMessage = []byte{terminateMsg, 0, 0, 0, 4}
 func terminateConn(cn *pool.Conn) error {
 	// Don't use cn.Buf because it is racy with user code.
 	_, err := cn.NetConn().Write(terminateMessage)
+
 	return err
 }
 
@@ -1331,11 +1391,13 @@ func terminateConn(cn *pool.Conn) error {
 
 func logNotice(rd *pool.ReaderContext, msgLen int) error {
 	_, err := rd.ReadN(msgLen)
+
 	return err
 }
 
 func logParameterStatus(rd *pool.ReaderContext, msgLen int) error {
 	_, err := rd.ReadN(msgLen)
+
 	return err
 }
 
@@ -1344,6 +1406,7 @@ func readInt16(rd *pool.ReaderContext) (int16, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return int16(binary.BigEndian.Uint16(b)), nil
 }
 
@@ -1352,6 +1415,7 @@ func readInt32(rd *pool.ReaderContext) (int32, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return int32(binary.BigEndian.Uint32(b)), nil
 }
 
@@ -1360,6 +1424,7 @@ func readString(rd *pool.ReaderContext) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(b[:len(b)-1]), nil
 }
 
@@ -1379,6 +1444,7 @@ func readError(rd *pool.ReaderContext) (error, error) {
 		}
 		m[c] = s
 	}
+
 	return internal.NewPGError(m), nil
 }
 
@@ -1391,5 +1457,6 @@ func readMessageType(rd *pool.ReaderContext) (byte, int, error) {
 	if err != nil {
 		return 0, 0, err
 	}
+
 	return c, int(l) - 4, nil
 }

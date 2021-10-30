@@ -28,10 +28,11 @@ func newArrayParserErr(err error) *arrayParser {
 
 func newArrayParser(rd Reader) *arrayParser {
 	p := parser.NewStreamingParser(rd)
-	err := p.SkipByte('{')
-	if err != nil {
+
+	if err := p.SkipByte('{'); err != nil {
 		return newArrayParserErr(err)
 	}
+
 	return &arrayParser{
 		p: p,
 	}
@@ -44,9 +45,10 @@ func (p *arrayParser) NextElem() ([]byte, error) {
 
 	c, err := p.p.ReadByte()
 	if err != nil {
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			return nil, errEndOfArray
 		}
+
 		return nil, err
 	}
 
@@ -78,6 +80,7 @@ func (p *arrayParser) NextElem() ([]byte, error) {
 
 		return b, nil
 	case '}':
+
 		return nil, errEndOfArray
 	default:
 		err = p.p.UnreadByte()
@@ -94,6 +97,7 @@ func (p *arrayParser) NextElem() ([]byte, error) {
 		if bytes.Equal(b, []byte("NULL")) {
 			return nil, nil
 		}
+
 		return b, nil
 	}
 }
@@ -104,20 +108,24 @@ func (p *arrayParser) readSimple(b []byte) ([]byte, error) {
 		if err == nil {
 			b = append(b, tmp...)
 			b = b[:len(b)-1]
+
 			break
 		}
 		b = append(b, tmp...)
-		if err == bufio.ErrBufferFull {
+		if errors.Is(err, bufio.ErrBufferFull) {
 			continue
 		}
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			if b[len(b)-1] == '}' {
 				b = b[:len(b)-1]
+
 				break
 			}
 		}
+
 		return nil, err
 	}
+
 	return b, nil
 }
 
@@ -131,6 +139,7 @@ func (p *arrayParser) readSubArray(b []byte) ([]byte, error) {
 
 		if c == '}' {
 			b = append(b, '}')
+
 			return b, nil
 		}
 
@@ -140,15 +149,17 @@ func (p *arrayParser) readSubArray(b []byte) ([]byte, error) {
 				tmp, err := p.p.ReadSlice('"')
 				b = append(b, tmp...)
 				if err != nil {
-					if err == bufio.ErrBufferFull {
+					if errors.Is(err, bufio.ErrBufferFull) {
 						continue
 					}
+
 					return nil, err
 				}
 				if len(b) > 1 && b[len(b)-2] != '\\' {
 					break
 				}
 			}
+
 			continue
 		}
 
@@ -163,8 +174,10 @@ func (p *arrayParser) readCommaBrace() error {
 	}
 	switch c {
 	case ',', '}':
+
 		return nil
 	default:
+
 		return fmt.Errorf("pg: got %q, wanted ',' or '}'", c)
 	}
 }

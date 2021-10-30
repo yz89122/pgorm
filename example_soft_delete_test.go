@@ -16,12 +16,14 @@ var _ types.ValueScanner = (*CustomTime)(nil)
 func (tm *CustomTime) ScanValue(rd types.Reader, n int) error {
 	var err error
 	tm.Time, err = types.ScanTime(rd, n)
+
 	return err
 }
 
 var _ types.ValueAppender = (*CustomTime)(nil)
 
 func (tm *CustomTime) AppendValue(b []byte, flags int) ([]byte, error) {
+
 	return types.AppendTime(b, tm.Time, flags), nil
 }
 

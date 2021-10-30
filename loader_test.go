@@ -118,24 +118,29 @@ type errLoader struct {
 var _ orm.HooklessModel = (*errLoader)(nil)
 
 func newErrLoader(err error) *errLoader {
+
 	return &errLoader{
 		err: err,
 	}
 }
 
 func (m *errLoader) Init() error {
+
 	return nil
 }
 
 func (m *errLoader) NextColumnScanner() orm.ColumnScanner {
+
 	return m
 }
 
 func (m *errLoader) AddColumnScanner(_ orm.ColumnScanner) error {
+
 	return nil
 }
 
 func (m *errLoader) ScanColumn(types.ColumnInfo, types.Reader, int) error {
+
 	return m.err
 }
 

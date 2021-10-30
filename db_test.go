@@ -33,6 +33,7 @@ func TestGinkgo(t *testing.T) {
 }
 
 func pgOptions() *pg.Options {
+
 	return &pg.Options{
 		User:      pgUser(),
 		Password:  pgPassword(),
@@ -56,42 +57,52 @@ func pgOptions() *pg.Options {
 
 func env(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
+
 		return value
 	}
+
 	return defaultValue
 }
 
 func pgUser() string {
+
 	return env("PGUSER", "postgres")
 }
 
 func pgPassword() string {
+
 	return env("PGPASSWORD", "postgres")
 }
 
 func getTLSConfig() *tls.Config {
 	pgSSLMode := os.Getenv("PGSSLMODE")
 	if pgSSLMode == "disable" {
+
 		return nil
 	}
+
 	return &tls.Config{
 		InsecureSkipVerify: true,
 	}
 }
 
 func pgDatabase() string {
+
 	return env("PGDATABASE", "postgres")
 }
 
 func pgAddr() string {
+
 	return fmt.Sprintf("%s:%s", pgHost(), pgPort())
 }
 
 func pgHost() string {
+
 	return env("PGHOST", "localhost")
 }
 
 func pgPort() string {
+
 	return env("PGPORT", "5432")
 }
 
@@ -101,6 +112,7 @@ func testDB() *pg.DB {
 	if _testDB == nil {
 		_testDB = pg.Connect(pgOptions())
 	}
+
 	return _testDB
 }
 
@@ -111,8 +123,10 @@ func TestDBString(t *testing.T) {
 	env := func(key, defValue string) string {
 		envValue := os.Getenv(key)
 		if envValue != "" {
+
 			return envValue
 		}
+
 		return defValue
 	}
 	host := env("PGHOST", "localhost")
@@ -146,6 +160,7 @@ func TestOnConnect(t *testing.T) {
 	opt := pgOptions()
 	opt.OnConnect = func(ctx context.Context, db *pg.Conn) error {
 		_, err := db.Exec("SET application_name = 'myapp'")
+
 		return err
 	}
 
@@ -273,6 +288,7 @@ var _ = Describe("OnConnect", func() {
 		opt := pgOptions()
 		opt.OnConnect = func(ctx context.Context, conn *pg.Conn) error {
 			_, err := conn.Exec("SELECT pg_sleep(10)")
+
 			return err
 		}
 
@@ -293,6 +309,7 @@ var _ = Describe("OnConnect", func() {
 		opt := pgOptions()
 		opt.OnConnect = func(ctx context.Context, conn *pg.Conn) error {
 			_, err := conn.Exec("SELECT 1")
+
 			return err
 		}
 
@@ -301,6 +318,7 @@ var _ = Describe("OnConnect", func() {
 
 		err := db.RunInTransaction(ctx, func(tx *pg.Tx) error {
 			_, err := tx.Exec(`SELECT 1`)
+
 			return err
 		})
 		Expect(err).NotTo(HaveOccurred())
@@ -1111,6 +1129,7 @@ type Genre struct {
 }
 
 func (g Genre) String() string {
+
 	return fmt.Sprintf("Genre<Id=%d Name=%q>", g.ID, g.Name)
 }
 
@@ -1129,6 +1148,7 @@ type Author struct {
 }
 
 func (a Author) String() string {
+
 	return fmt.Sprintf("Author<ID=%d Name=%q>", a.ID, a.Name)
 }
 
@@ -1161,6 +1181,7 @@ type Book struct {
 var _ orm.BeforeInsertHook = (*Book)(nil)
 
 func (b Book) String() string {
+
 	return fmt.Sprintf("Book<Id=%d Title=%q>", b.ID, b.Title)
 }
 
@@ -1168,6 +1189,7 @@ func (b *Book) BeforeInsert(c context.Context) (context.Context, error) {
 	if b.CreatedAt.IsZero() {
 		b.CreatedAt = time.Now()
 	}
+
 	return c, nil
 }
 
@@ -1213,14 +1235,17 @@ func createTestSchema(db *pg.DB) error {
 			Cascade:  true,
 		})
 		if err != nil {
+
 			return err
 		}
 
 		err = db.Model(model).CreateTable(nil)
 		if err != nil {
+
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -1429,9 +1454,11 @@ var _ = Describe("ORM", func() {
 				Relation("Genres").
 				Relation("Comments").
 				Relation("Translations", func(q *pg.Query) (*pg.Query, error) {
+
 					return q.Order("id"), nil
 				}).
 				Relation("Translations.Comments", func(q *pg.Query) (*pg.Query, error) {
+
 					return q.Order("text"), nil
 				}).
 				First()
@@ -2109,6 +2136,7 @@ var _ = Describe("ORM", func() {
 		err := db.Model(&book).
 			Column("book.id").
 			Relation("Translations", func(q *pg.Query) (*pg.Query, error) {
+
 				return q.Where("lang = 'ru'"), nil
 			}).
 			First()
@@ -2126,6 +2154,7 @@ var _ = Describe("ORM", func() {
 		err := db.Model(&book).
 			Column("book.id").
 			Relation("Genres", func(q *pg.Query) (*pg.Query, error) {
+
 				return q.Where("genre__rating > 999"), nil
 			}).
 			First()
@@ -2204,6 +2233,7 @@ var _ = Describe("ORM", func() {
 				book := &books[count]
 				Expect(book).To(Equal(b))
 				count++
+
 				return nil
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -2223,6 +2253,7 @@ var _ = Describe("ORM", func() {
 				book := &books[count]
 				Expect(book).To(Equal(&b))
 				count++
+
 				return nil
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -2236,6 +2267,7 @@ var _ = Describe("ORM", func() {
 			var count int
 			err := q.ForEach(func(_ orm.Discard) error {
 				count++
+
 				return nil
 			})
 			Expect(err).NotTo(HaveOccurred())
@@ -2257,6 +2289,7 @@ var _ = Describe("ORM", func() {
 				Expect(id).To(Equal(book.ID))
 				Expect(title).To(Equal(book.Title))
 				count++
+
 				return nil
 			})
 			Expect(err).NotTo(HaveOccurred())

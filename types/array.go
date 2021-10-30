@@ -35,6 +35,7 @@ func (a *Array) AppendValue(b []byte, flags int) ([]byte, error) {
 	if a.append == nil {
 		panic(fmt.Errorf("pg: Array(unsupported %s)", a.v.Type()))
 	}
+
 	return a.append(b, a.v, flags), nil
 }
 
@@ -54,5 +55,6 @@ func (a *Array) Value() interface{} {
 	if a.v.IsValid() {
 		return a.v.Interface()
 	}
+
 	return nil
 }

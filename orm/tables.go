@@ -29,6 +29,7 @@ func (inp *tableInProgress) init1() bool {
 		inp.table.init1()
 		inited = true
 	})
+
 	return inited
 }
 
@@ -38,6 +39,7 @@ func (inp *tableInProgress) init2() bool {
 		inp.table.init2()
 		inited = true
 	})
+
 	return inited
 }
 
@@ -87,6 +89,7 @@ func (t *tables) get(typ reflect.Type, allowInProgress bool) *Table {
 
 	if v, ok := t.tables.Load(typ); ok {
 		t.mu.Unlock()
+
 		return v.(*Table)
 	}
 
@@ -125,12 +128,15 @@ func (t *tables) Get(typ reflect.Type) *Table {
 func (t *tables) getByName(name types.Safe) *Table {
 	var found *Table
 	t.tables.Range(func(key, value interface{}) bool {
-		t := value.(*Table)
+		t := value.(*Table) //nolint:forcetypeassert
 		if t.SQLName == name {
 			found = t
+
 			return false
 		}
+
 		return true
 	})
+
 	return found
 }

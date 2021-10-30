@@ -40,6 +40,7 @@ var _ = Describe("Select - nil model", func() {
 		q := NewQuery(nil, (*SelectModel)(nil)).
 			Relation("HasOne", func(q *Query) (*Query, error) {
 				q = q.JoinOn("1 = 2")
+
 				return q, nil
 			})
 

@@ -24,6 +24,7 @@ func (tm Time) AppendValue(b []byte, flags int) ([]byte, error) {
 	if flags == 1 {
 		b = append(b, '\'')
 	}
+
 	return b, nil
 }
 
@@ -32,16 +33,19 @@ var _ types.ValueScanner = (*Time)(nil)
 func (tm *Time) ScanValue(rd types.Reader, n int) error {
 	if n <= 0 {
 		tm.Time = time.Time{}
+
 		return nil
 	}
 
 	tmp, err := rd.ReadFullTemp()
 	if err != nil {
+
 		return err
 	}
 
 	tm.Time, err = time.ParseInLocation(pgTimeFormat, string(tmp), time.UTC)
 	if err != nil {
+
 		return err
 	}
 

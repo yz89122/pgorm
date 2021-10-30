@@ -33,6 +33,7 @@ var _ pg.BeforeScanHook = (*HookTest)(nil)
 
 func (t *HookTest) BeforeScan(c context.Context) error {
 	t.beforeScan++
+
 	return nil
 }
 
@@ -40,6 +41,7 @@ var _ pg.AfterScanHook = (*HookTest)(nil)
 
 func (t *HookTest) AfterScan(c context.Context) error {
 	t.afterScan++
+
 	return nil
 }
 
@@ -47,6 +49,7 @@ var _ pg.AfterSelectHook = (*HookTest)(nil)
 
 func (t *HookTest) AfterSelect(c context.Context) error {
 	t.afterSelect++
+
 	return nil
 }
 
@@ -54,6 +57,7 @@ var _ pg.BeforeInsertHook = (*HookTest)(nil)
 
 func (t *HookTest) BeforeInsert(c context.Context) (context.Context, error) {
 	t.beforeInsert++
+
 	return c, nil
 }
 
@@ -61,6 +65,7 @@ var _ pg.AfterInsertHook = (*HookTest)(nil)
 
 func (t *HookTest) AfterInsert(c context.Context) error {
 	t.afterInsert++
+
 	return nil
 }
 
@@ -68,6 +73,7 @@ var _ pg.BeforeUpdateHook = (*HookTest)(nil)
 
 func (t *HookTest) BeforeUpdate(c context.Context) (context.Context, error) {
 	t.beforeUpdate++
+
 	return c, nil
 }
 
@@ -75,6 +81,7 @@ var _ pg.AfterUpdateHook = (*HookTest)(nil)
 
 func (t *HookTest) AfterUpdate(c context.Context) error {
 	t.afterUpdate++
+
 	return nil
 }
 
@@ -82,6 +89,7 @@ var _ pg.BeforeDeleteHook = (*HookTest)(nil)
 
 func (t *HookTest) BeforeDelete(c context.Context) (context.Context, error) {
 	t.beforeDelete++
+
 	return c, nil
 }
 
@@ -89,6 +97,7 @@ var _ pg.AfterDeleteHook = (*HookTest)(nil)
 
 func (t *HookTest) AfterDelete(c context.Context) error {
 	t.afterDelete++
+
 	return nil
 }
 
@@ -200,10 +209,12 @@ type queryHookTest struct {
 }
 
 func (e queryHookTest) BeforeQuery(c context.Context, evt *pg.QueryEvent) (context.Context, error) {
+
 	return e.beforeQueryMethod(c, evt)
 }
 
 func (e queryHookTest) AfterQuery(c context.Context, evt *pg.QueryEvent) error {
+
 	return e.afterQueryMethod(c, evt)
 }
 
@@ -358,12 +369,14 @@ var _ = Describe("BeforeQuery and AfterQuery", func() {
 		BeforeEach(func() {
 			hookImpl := struct{ queryHookTest }{}
 			hookImpl.beforeQueryMethod = func(c context.Context, evt *pg.QueryEvent) (context.Context, error) {
+
 				return c, nil
 			}
 			hookImpl.afterQueryMethod = func(c context.Context, evt *pg.QueryEvent) error {
 				q, err := evt.FormattedQuery()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(string(q)).To(Equal(`CREATE INDEX stories_author_id_idx ON "hook_tests" (author_id)`))
+
 				return nil
 			}
 			db.AddQueryHook(hookImpl)

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/go-pg/pgext"
 	pg "github.com/yz89122/pgorm/v12"
+	"github.com/yz89122/pgorm/v12/extra/pgdebug"
 	"github.com/yz89122/pgorm/v12/orm"
 )
 
@@ -14,7 +14,7 @@ func main() {
 	db := pg.Connect(&pg.Options{
 		User: "postgres",
 	})
-	db.AddQueryHook(&pgext.DebugHook{Verbose: true})
+	db.AddQueryHook(&pgdebug.DebugHook{Verbose: true})
 
 	// if _, err := db.Model(&Project{
 	// 	ID:        "bsvt22v0cr8rnl249230",

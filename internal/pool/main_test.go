@@ -32,5 +32,6 @@ func perform(n int, cbs ...func(int)) {
 }
 
 func dummyDialer(context.Context) (net.Conn, error) {
+
 	return &net.TCPConn{}, nil
 }

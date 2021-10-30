@@ -14,6 +14,7 @@ import (
 )
 
 func benchmarkDB() *pg.DB {
+
 	return pg.Connect(&pg.Options{
 		User:         pgUser(),
 		Password:     pgPassword(),
@@ -372,6 +373,7 @@ func randSeq(n int) string {
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
+
 	return string(b)
 }
 
@@ -381,26 +383,32 @@ type Record struct {
 }
 
 func (r *Record) GetNum1() int64 {
+
 	return r.Num1
 }
 
 func (r *Record) GetNum2() int64 {
+
 	return r.Num2
 }
 
 func (r *Record) GetNum3() int64 {
+
 	return r.Num3
 }
 
 func (r *Record) GetStr1() string {
+
 	return r.Str1
 }
 
 func (r *Record) GetStr2() string {
+
 	return r.Str2
 }
 
 func (r *Record) GetStr3() string {
+
 	return r.Str3
 }
 
@@ -414,6 +422,7 @@ var _ orm.ColumnScanner = (*OptRecord)(nil)
 func (r *OptRecord) ScanColumn(col types.ColumnInfo, rd types.Reader, n int) error {
 	tmp, err := rd.ReadFullTemp()
 	if err != nil {
+
 		return err
 	}
 
@@ -431,8 +440,10 @@ func (r *OptRecord) ScanColumn(col types.ColumnInfo, rd types.Reader, n int) err
 	case "str3":
 		r.Str3 = string(tmp)
 	default:
+
 		return fmt.Errorf("unknown column: %q", col.Name)
 	}
+
 	return err
 }
 
@@ -443,15 +454,18 @@ type OptRecords struct {
 var _ orm.HooklessModel = (*OptRecords)(nil)
 
 func (rs *OptRecords) Init() error {
+
 	return nil
 }
 
 func (rs *OptRecords) NextColumnScanner() orm.ColumnScanner {
 	rs.C = append(rs.C, OptRecord{})
+
 	return &rs.C[len(rs.C)-1]
 }
 
 func (OptRecords) AddColumnScanner(_ orm.ColumnScanner) error {
+
 	return nil
 }
 
@@ -471,6 +485,7 @@ func _seedDB() error {
 
 	_, err := db.Exec(`DROP TABLE IF EXISTS records`)
 	if err != nil {
+
 		return err
 	}
 
@@ -485,6 +500,7 @@ func _seedDB() error {
 		)
 	`)
 	if err != nil {
+
 		return err
 	}
 
@@ -493,12 +509,14 @@ func _seedDB() error {
 			INSERT INTO records (str1, str2, str3) VALUES (?, ?, ?)
 		`, randSeq(100), randSeq(200), randSeq(300))
 		if err != nil {
+
 			return err
 		}
 	}
 
 	err = createTestSchema(db)
 	if err != nil {
+
 		return err
 	}
 
@@ -509,6 +527,7 @@ func _seedDB() error {
 		}
 		_, err = db.Model(genre).Insert()
 		if err != nil {
+
 			return err
 		}
 
@@ -518,6 +537,7 @@ func _seedDB() error {
 		}
 		_, err = db.Model(author).Insert()
 		if err != nil {
+
 			return err
 		}
 	}
@@ -531,6 +551,7 @@ func _seedDB() error {
 		}
 		_, err = db.Model(book).Insert()
 		if err != nil {
+
 			return err
 		}
 
@@ -541,6 +562,7 @@ func _seedDB() error {
 			}
 			_, err = db.Model(bookGenre).Insert()
 			if err != nil {
+
 				return err
 			}
 
@@ -550,6 +572,7 @@ func _seedDB() error {
 			}
 			_, err = db.Model(translation).Insert()
 			if err != nil {
+
 				return err
 			}
 		}
@@ -576,6 +599,7 @@ func BenchmarkForEachReal(b *testing.B) {
 			TableExpr("generate_series(1, ?) as id", N).
 			ForEach(func(m *Model) error {
 				i++
+
 				return nil
 			})
 		if err != nil {

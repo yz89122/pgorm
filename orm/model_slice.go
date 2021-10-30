@@ -27,6 +27,7 @@ func (m *sliceModel) Init() error {
 	if m.slice.IsValid() && m.slice.Len() > 0 {
 		m.slice.Set(m.slice.Slice(0, 0))
 	}
+
 	return nil
 }
 
@@ -39,5 +40,6 @@ func (m *sliceModel) ScanColumn(col types.ColumnInfo, rd types.Reader, n int) er
 		m.nextElem = internal.MakeSliceNextElemFunc(m.slice)
 	}
 	v := m.nextElem()
+
 	return m.scan(v, rd, n)
 }

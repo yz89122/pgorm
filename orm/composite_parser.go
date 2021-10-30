@@ -26,10 +26,11 @@ func newCompositeParserErr(err error) *compositeParser {
 
 func newCompositeParser(rd types.Reader) *compositeParser {
 	p := parser.NewStreamingParser(rd)
-	err := p.SkipByte('(')
-	if err != nil {
+
+	if err := p.SkipByte('('); err != nil {
 		return newCompositeParserErr(err)
 	}
+
 	return &compositeParser{
 		p: p,
 	}
@@ -42,18 +43,22 @@ func (p *compositeParser) NextElem() ([]byte, error) {
 
 	c, err := p.p.ReadByte()
 	if err != nil {
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			return nil, errEndOfComposite
 		}
+
 		return nil, err
 	}
 
 	switch c {
 	case '"':
+
 		return p.readQuoted()
 	case ',':
+
 		return nil, nil
 	case ')':
+
 		return nil, errEndOfComposite
 	default:
 		_ = p.p.UnreadByte()
@@ -69,24 +74,28 @@ func (p *compositeParser) NextElem() ([]byte, error) {
 				b = append(b, tmp...)
 			}
 			b = b[:len(b)-1]
+
 			break
 		}
 		b = append(b, tmp...)
-		if err == bufio.ErrBufferFull {
+		if errors.Is(err, bufio.ErrBufferFull) {
 			continue
 		}
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			if b[len(b)-1] == ')' {
 				b = b[:len(b)-1]
+
 				break
 			}
 		}
+
 		return nil, err
 	}
 
 	if len(b) == 0 { // NULL
 		return nil, nil
 	}
+
 	return b, nil
 }
 
@@ -115,6 +124,7 @@ func (p *compositeParser) readQuoted() ([]byte, error) {
 				b = append(b, c)
 				c = next
 			}
+
 			continue
 		}
 
@@ -127,10 +137,13 @@ func (p *compositeParser) readQuoted() ([]byte, error) {
 					return nil, err
 				}
 			case ',', ')':
+
 				return b, nil
 			default:
+
 				return nil, fmt.Errorf("pg: got %q, wanted ',' or ')'", c)
 			}
+
 			continue
 		}
 

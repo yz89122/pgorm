@@ -34,8 +34,10 @@ func (p *Parser) Read() byte {
 	if p.Valid() {
 		c := p.b[p.i]
 		p.Advance()
+
 		return c
 	}
+
 	return 0
 }
 
@@ -43,6 +45,7 @@ func (p *Parser) Peek() byte {
 	if p.Valid() {
 		return p.b[p.i]
 	}
+
 	return 0
 }
 
@@ -53,8 +56,10 @@ func (p *Parser) Advance() {
 func (p *Parser) Skip(skip byte) bool {
 	if p.Peek() == skip {
 		p.Advance()
+
 		return true
 	}
+
 	return false
 }
 
@@ -66,6 +71,7 @@ func (p *Parser) SkipBytes(skip []byte) bool {
 		return false
 	}
 	p.i += len(skip)
+
 	return true
 }
 
@@ -74,11 +80,13 @@ func (p *Parser) ReadSep(sep byte) ([]byte, bool) {
 	if ind == -1 {
 		b := p.b[p.i:]
 		p.i = len(p.b)
+
 		return b, false
 	}
 
 	b := p.b[p.i : p.i+ind]
 	p.i += ind + 1
+
 	return b, true
 }
 
@@ -88,6 +96,7 @@ func (p *Parser) ReadIdentifier() (string, bool) {
 		if ind := bytes.IndexByte(p.b[s:], ')'); ind != -1 {
 			b := p.b[s : s+ind]
 			p.i = s + ind + 1
+
 			return internal.BytesToString(b), false
 		}
 	}
@@ -100,9 +109,11 @@ func (p *Parser) ReadIdentifier() (string, bool) {
 		}
 		if isAlpha(c) || (i > 0 && alpha && c == '_') {
 			alpha = true
+
 			continue
 		}
 		ind = i
+
 		break
 	}
 	if ind == 0 {
@@ -110,6 +121,7 @@ func (p *Parser) ReadIdentifier() (string, bool) {
 	}
 	b := p.b[p.i : p.i+ind]
 	p.i += ind
+
 	return internal.BytesToString(b), !alpha
 }
 
@@ -118,6 +130,7 @@ func (p *Parser) ReadNumber() int {
 	for i, c := range p.b[p.i:] {
 		if !isNum(c) {
 			ind = i
+
 			break
 		}
 	}
@@ -129,6 +142,7 @@ func (p *Parser) ReadNumber() int {
 		panic(err)
 	}
 	p.i += ind
+
 	return n
 }
 

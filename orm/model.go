@@ -52,19 +52,23 @@ func newScanModel(values []interface{}) (Model, error) {
 	if len(values) > 1 {
 		return Scan(values...), nil
 	}
+
 	return newModel(values[0], true)
 }
 
 func newModel(value interface{}, scan bool) (Model, error) {
 	switch value := value.(type) {
 	case Model:
+
 		return value, nil
 	case HooklessModel:
+
 		return newModelWithHookStubs(value), nil
 	case types.ValueScanner, sql.Scanner:
 		if !scan {
 			return nil, fmt.Errorf("pg: Model(unsupported %T)", value)
 		}
+
 		return Scan(value), nil
 	}
 
@@ -81,6 +85,7 @@ func newModel(value interface{}, scan bool) (Model, error) {
 		if typ.Kind() == reflect.Struct {
 			return newStructTableModel(GetTable(typ)), nil
 		}
+
 		return nil, errModelNil
 	}
 
@@ -111,22 +116,26 @@ func newModel(value interface{}, scan bool) (Model, error) {
 			if err := validMap(elemType); err != nil {
 				return nil, err
 			}
-			slicePtr := v.Addr().Interface().(*[]map[string]interface{})
+			slicePtr := v.Addr().Interface().(*[]map[string]interface{}) //nolint:forcetypeassert
+
 			return newMapSliceModel(slicePtr), nil
 		}
+
 		return newSliceModel(v, elemType), nil
 	case reflect.Map:
 		typ := v.Type()
 		if err := validMap(typ); err != nil {
 			return nil, err
 		}
-		mapPtr := v.Addr().Interface().(*map[string]interface{})
+		mapPtr := v.Addr().Interface().(*map[string]interface{}) //nolint:forcetypeassert
+
 		return newMapModel(mapPtr), nil
 	}
 
 	if !scan {
 		return nil, fmt.Errorf("pg: Model(unsupported %T)", value)
 	}
+
 	return Scan(value), nil
 }
 
@@ -146,5 +155,6 @@ func validMap(typ reflect.Type) error {
 		return fmt.Errorf("pg: Model(unsupported %s, expected *map[string]interface{})",
 			typ.String())
 	}
+
 	return nil
 }

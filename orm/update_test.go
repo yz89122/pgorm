@@ -183,7 +183,7 @@ var _ = Describe("Update", func() {
 
 		q := NewQuery(nil, &[]Model{{
 			ID:        1,
-			CreatedAt: types.NullTime{time.Unix(0, 0)},
+			CreatedAt: types.NullTime{Time: time.Unix(0, 0)},
 			DeletedAt: sql.NullTime{Time: time.Unix(0, 0), Valid: true},
 		}})
 
@@ -224,11 +224,13 @@ var _ = Describe("Update", func() {
 func updateQueryString(q *Query) string {
 	upd := NewUpdateQuery(q, false)
 	s := queryString(upd)
+
 	return s
 }
 
 func updateQueryStringOmitZero(q *Query) string {
 	upd := NewUpdateQuery(q, true)
 	s := queryString(upd)
+
 	return s
 }

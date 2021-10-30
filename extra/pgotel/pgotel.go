@@ -2,6 +2,7 @@ package pgotel
 
 import (
 	"context"
+	"errors"
 	"runtime"
 	"strings"
 
@@ -35,6 +36,7 @@ func (h *TracingHook) BeforeQuery(ctx context.Context, _ *pg.QueryEvent) (contex
 	}
 
 	ctx, _ = tracer.Start(ctx, "")
+
 	return ctx, nil
 }
 
@@ -119,8 +121,8 @@ func (h *TracingHook) AfterQuery(ctx context.Context, evt *pg.QueryEvent) error 
 	}
 
 	if evt.Err != nil {
-		switch evt.Err {
-		case pg.ErrNoRows, pg.ErrMultiRows:
+		switch {
+		case errors.Is(evt.Err, pg.ErrNoRows), errors.Is(evt.Err, pg.ErrMultiRows):
 		default:
 			span.RecordError(evt.Err)
 			span.SetStatus(codes.Error, evt.Err.Error())

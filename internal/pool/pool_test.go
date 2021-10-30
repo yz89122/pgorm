@@ -97,8 +97,10 @@ var _ = Describe("MinIdleConns", func() {
 			IdleCheckFrequency: -1,
 		})
 		Eventually(func() int {
+
 			return connPool.Len()
 		}).Should(Equal(minIdleConns))
+
 		return connPool
 	}
 
@@ -117,6 +119,7 @@ var _ = Describe("MinIdleConns", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				Eventually(func() int {
+
 					return connPool.Len()
 				}).Should(Equal(minIdleConns + 1))
 			})
@@ -156,6 +159,7 @@ var _ = Describe("MinIdleConns", func() {
 				})
 
 				Eventually(func() int {
+
 					return connPool.Len()
 				}).Should(BeNumerically(">=", poolSize))
 			})
@@ -191,6 +195,7 @@ var _ = Describe("MinIdleConns", func() {
 					})
 
 					Eventually(func() int {
+
 						return connPool.Len()
 					}).Should(Equal(poolSize))
 				})
@@ -210,6 +215,7 @@ var _ = Describe("MinIdleConns", func() {
 					})
 
 					Eventually(func() int {
+
 						return connPool.Len()
 					}).Should(Equal(minIdleConns))
 				})
@@ -269,6 +275,7 @@ var _ = Describe("conns reaper", func() {
 				IdleCheckFrequency: time.Hour,
 				OnClose: func(cn *pool.Conn) error {
 					closedConns = append(closedConns, cn)
+
 					return nil
 				},
 			})

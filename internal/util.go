@@ -12,18 +12,22 @@ func Sleep(ctx context.Context, dur time.Duration) error {
 
 	select {
 	case <-t.C:
+
 		return nil
 	case <-ctx.Done():
-		return ctx.Err()
+
+		return ctx.Err() //nolint:wrapcheck
 	}
 }
 
 func MakeSliceNextElemFunc(v reflect.Value) func() reflect.Value {
 	if v.Kind() == reflect.Array {
 		var pos int
+
 		return func() reflect.Value {
 			v := v.Index(pos)
 			pos++
+
 			return v
 		}
 	}
@@ -32,6 +36,7 @@ func MakeSliceNextElemFunc(v reflect.Value) func() reflect.Value {
 
 	if elemType.Kind() == reflect.Ptr {
 		elemType = elemType.Elem()
+
 		return func() reflect.Value {
 			if v.Len() < v.Cap() {
 				v.Set(v.Slice(0, v.Len()+1))
@@ -39,33 +44,41 @@ func MakeSliceNextElemFunc(v reflect.Value) func() reflect.Value {
 				if elem.IsNil() {
 					elem.Set(reflect.New(elemType))
 				}
+
 				return elem.Elem()
 			}
 
 			elem := reflect.New(elemType)
 			v.Set(reflect.Append(v, elem))
+
 			return elem.Elem()
 		}
 	}
 
 	zero := reflect.Zero(elemType)
+
 	return func() reflect.Value {
 		if v.Len() < v.Cap() {
 			v.Set(v.Slice(0, v.Len()+1))
+
 			return v.Index(v.Len() - 1)
 		}
 
 		v.Set(reflect.Append(v, zero))
+
 		return v.Index(v.Len() - 1)
 	}
 }
 
+//nolint
 func Unwrap(err error) error {
 	u, ok := err.(interface {
 		Unwrap() error
 	})
 	if !ok {
+
 		return nil
 	}
+
 	return u.Unwrap()
 }

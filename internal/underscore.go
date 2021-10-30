@@ -31,6 +31,7 @@ func Underscore(s string) string {
 			r = append(r, c)
 		}
 	}
+
 	return string(r)
 }
 
@@ -41,6 +42,7 @@ func CamelCased(s string) string {
 		c := s[i]
 		if c == '_' {
 			upperNext = true
+
 			continue
 		}
 		if upperNext {
@@ -51,6 +53,7 @@ func CamelCased(s string) string {
 		}
 		r = append(r, c)
 	}
+
 	return string(r)
 }
 
@@ -61,8 +64,10 @@ func ToExported(s string) string {
 	if c := s[0]; IsLower(c) {
 		b := []byte(s)
 		b[0] = ToUpper(c)
+
 		return string(b)
 	}
+
 	return s
 }
 
@@ -79,6 +84,7 @@ func UpperString(s string) string {
 		}
 		b[i] = c
 	}
+
 	return string(b)
 }
 
@@ -89,5 +95,6 @@ func isUpperString(s string) bool {
 			return false
 		}
 	}
+
 	return true
 }

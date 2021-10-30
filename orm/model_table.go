@@ -57,6 +57,7 @@ func newTableModelIndex(typ reflect.Type, root reflect.Value, index []int, rel *
 				},
 			}
 			m.init(typ)
+
 			return &m, nil
 		}
 	}

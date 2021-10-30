@@ -57,10 +57,13 @@ func (e *QueryEvent) UnformattedQuery() ([]byte, error) {
 func queryString(query interface{}) ([]byte, error) {
 	switch query := query.(type) {
 	case orm.TemplateAppender:
+
 		return query.AppendTemplate(nil)
 	case string:
+
 		return dummyFormatter{}.FormatQuery(nil, query), nil
 	default:
+
 		return nil, fmt.Errorf("pg: can't append %T", query)
 	}
 }
@@ -103,6 +106,7 @@ func (db *baseDB) beforeQuery(
 			if err := db.afterQueryFromIndex(ctx, event, i); err != nil {
 				return ctx, nil, err
 			}
+
 			return ctx, nil, err
 		}
 	}
@@ -122,6 +126,7 @@ func (db *baseDB) afterQuery(
 
 	event.Err = err
 	event.Result = res
+
 	return db.afterQueryFromIndex(ctx, event, len(db.queryHooks)-1)
 }
 
@@ -131,6 +136,7 @@ func (db *baseDB) afterQueryFromIndex(ctx context.Context, event *QueryEvent, ho
 			return err
 		}
 	}
+
 	return nil
 }
 

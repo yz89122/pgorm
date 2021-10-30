@@ -12,8 +12,10 @@ import (
 
 func concurrency() (int, int) {
 	if testing.Short() {
+
 		return 4, 100
 	}
+
 	return 10, 1000
 }
 

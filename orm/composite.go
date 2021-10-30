@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -14,9 +15,11 @@ func compositeScanner(typ reflect.Type) types.ScannerFunc {
 	}
 
 	var table *Table
+
 	return func(v reflect.Value, rd types.Reader, n int) error {
 		if n == -1 {
 			v.Set(reflect.Zero(v.Type()))
+
 			return nil
 		}
 
@@ -37,9 +40,10 @@ func compositeScanner(typ reflect.Type) types.ScannerFunc {
 		for i := 0; ; i++ {
 			elem, err := p.NextElem()
 			if err != nil {
-				if err == errEndOfComposite {
+				if errors.Is(err, errEndOfComposite) {
 					break
 				}
+
 				return err
 			}
 
@@ -49,6 +53,7 @@ func compositeScanner(typ reflect.Type) types.ScannerFunc {
 						"pg: %s has %d fields, but composite requires at least %d values",
 						table, len(table.Fields), i)
 				}
+
 				continue
 			}
 
@@ -79,6 +84,7 @@ func compositeAppender(typ reflect.Type) types.AppenderFunc {
 	}
 
 	var table *Table
+
 	return func(b []byte, v reflect.Value, quote int) []byte {
 		if table == nil {
 			table = GetTable(typ)
@@ -95,6 +101,7 @@ func compositeAppender(typ reflect.Type) types.AppenderFunc {
 			b = f.AppendValue(b, v, quote)
 		}
 		b = append(b, ')')
+
 		return b
 	}
 }

@@ -14,6 +14,7 @@ func HstoreAppender(typ reflect.Type) AppenderFunc {
 
 	return func(b []byte, v reflect.Value, flags int) []byte {
 		err := fmt.Errorf("pg.Hstore(unsupported %s)", v.Type())
+
 		return AppendError(b, err)
 	}
 }
@@ -45,6 +46,7 @@ func appendMapStringString(b []byte, m map[string]string, flags int) []byte {
 }
 
 func appendMapStringStringValue(b []byte, v reflect.Value, flags int) []byte {
-	m := v.Convert(mapStringStringType).Interface().(map[string]string)
+	m := v.Convert(mapStringStringType).Interface().(map[string]string) //nolint:forcetypeassert
+
 	return appendMapStringString(b, m, flags)
 }

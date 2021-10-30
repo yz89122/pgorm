@@ -9,34 +9,41 @@ import (
 func CreateUser(db *pg.DB, user *User) error {
 	_, err := db.QueryOne(user, `
 		INSERT INTO users (name, emails) VALUES (?name, ?emails)
+
 		RETURNING id
 	`, user)
+
 	return err
 }
 
 func GetUser(db *pg.DB, id int64) (*User, error) {
 	var user User
 	_, err := db.QueryOne(&user, `SELECT * FROM users WHERE id = ?`, id)
+
 	return &user, err
 }
 
 func GetUsers(db *pg.DB) ([]User, error) {
 	var users []User
 	_, err := db.Query(&users, `SELECT * FROM users`)
+
 	return users, err
 }
 
 func GetUsersByIds(db *pg.DB, ids []int64) ([]User, error) {
 	var users []User
 	_, err := db.Query(&users, `SELECT * FROM users WHERE id IN (?)`, pg.In(ids))
+
 	return users, err
 }
 
 func CreateStory(db *pg.DB, story *Story) error {
 	_, err := db.QueryOne(story, `
 		INSERT INTO stories (title, author_id) VALUES (?title, ?author_id)
+
 		RETURNING id
 	`, story)
+
 	return err
 }
 
@@ -49,6 +56,7 @@ func GetStory(db *pg.DB, id int64) (*Story, error) {
 		FROM stories AS s, users AS u
 		WHERE s.id = ? AND u.id = s.author_id
 	`, id)
+
 	return &story, err
 }
 

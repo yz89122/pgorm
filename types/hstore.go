@@ -43,6 +43,7 @@ func (h *Hstore) Value() interface{} {
 	if h.v.IsValid() {
 		return h.v.Interface()
 	}
+
 	return nil
 }
 

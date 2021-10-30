@@ -77,6 +77,7 @@ func ExampleDB_Model_manyToMany() {
 	err = db.Model(order).
 		Relation("Items", func(q *pg.Query) (*pg.Query, error) {
 			q = q.OrderExpr("item.id DESC")
+
 			return q, nil
 		}).
 		First()
@@ -100,8 +101,10 @@ func createManyToManyTables(db *pg.DB) error {
 			Temp: true,
 		})
 		if err != nil {
+
 			return err
 		}
 	}
+
 	return nil
 }

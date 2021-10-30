@@ -54,6 +54,7 @@ func (enc *HexEncoder) Close() error {
 	} else {
 		enc.b = AppendNull(enc.b, enc.flags)
 	}
+
 	return nil
 }
 
@@ -62,6 +63,7 @@ func (enc *HexEncoder) Close() error {
 func NewHexDecoder(rd Reader, n int) (io.Reader, error) {
 	if n <= 0 {
 		var rd bytes.Reader
+
 		return &rd, nil
 	}
 

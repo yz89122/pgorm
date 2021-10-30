@@ -16,6 +16,7 @@ type result struct {
 	model orm.Model
 
 	affected int
+
 	returned int
 }
 
@@ -27,6 +28,7 @@ func (res *result) parse(b []byte) error {
 
 	ind := bytes.LastIndexByte(b, ' ')
 	if ind == -1 {
+
 		return nil
 	}
 

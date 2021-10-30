@@ -54,9 +54,9 @@ func (db *baseDB) BeginContext(ctx context.Context) (*Tx, error) {
 		ctx: ctx,
 	}
 
-	err := tx.begin(ctx)
-	if err != nil {
+	if err := tx.begin(ctx); err != nil {
 		tx.close()
+
 		return nil, err
 	}
 
@@ -71,6 +71,7 @@ func (db *baseDB) RunInTransaction(ctx context.Context, fn func(*Tx) error) erro
 	if err != nil {
 		return err
 	}
+
 	return tx.RunInTransaction(ctx, fn)
 }
 
@@ -96,16 +97,19 @@ func (tx *Tx) RunInTransaction(ctx context.Context, fn func(*Tx) error) error {
 		if err := tx.RollbackContext(ctx); err != nil {
 			internal.Logger.Printf(ctx, "tx.Rollback failed: %s", err)
 		}
+
 		return err
 	}
+
 	return tx.CommitContext(ctx)
 }
 
 func (tx *Tx) withConn(c context.Context, fn func(context.Context, *pool.Conn) error) error {
 	err := tx.db.withConn(c, fn)
-	if tx.closed() && err == pool.ErrClosed {
+	if tx.closed() && errors.Is(err, pool.ErrClosed) {
 		return ErrTxDone
 	}
+
 	return err
 }
 
@@ -116,6 +120,7 @@ func (tx *Tx) Stmt(stmt *Stmt) *Stmt {
 	if err != nil {
 		return &Stmt{stickyErr: err}
 	}
+
 	return stmt
 }
 
@@ -165,12 +170,14 @@ func (tx *Tx) exec(ctx context.Context, query interface{}, params ...interface{}
 	var res Result
 	lastErr := tx.withConn(ctx, func(ctx context.Context, cn *pool.Conn) error {
 		res, err = tx.db.simpleQuery(ctx, cn, wb)
+
 		return err
 	})
 
 	if err := tx.db.afterQuery(ctx, evt, res, lastErr); err != nil {
 		return nil, err
 	}
+
 	return res, lastErr
 }
 
@@ -193,6 +200,7 @@ func (tx *Tx) execOne(c context.Context, query interface{}, params ...interface{
 	if err := internal.AssertOneRow(res.RowsAffected()); err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
@@ -232,12 +240,14 @@ func (tx *Tx) query(
 	var res *result
 	lastErr := tx.withConn(ctx, func(ctx context.Context, cn *pool.Conn) error {
 		res, err = tx.db.simpleQueryData(ctx, cn, model, wb)
+
 		return err
 	})
 
 	if err := tx.db.afterQuery(ctx, evt, res, err); err != nil {
 		return nil, err
 	}
+
 	return res, lastErr
 }
 
@@ -275,6 +285,7 @@ func (tx *Tx) queryOne(
 	if err := internal.AssertOneRow(res.RowsAffected()); err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
@@ -292,8 +303,10 @@ func (tx *Tx) ModelContext(c context.Context, model ...interface{}) *Query {
 func (tx *Tx) CopyFrom(r io.Reader, query interface{}, params ...interface{}) (res Result, err error) {
 	err = tx.withConn(tx.ctx, func(c context.Context, cn *pool.Conn) error {
 		res, err = tx.db.copyFrom(c, cn, r, query, params...)
+
 		return err
 	})
+
 	return res, err
 }
 
@@ -301,8 +314,10 @@ func (tx *Tx) CopyFrom(r io.Reader, query interface{}, params ...interface{}) (r
 func (tx *Tx) CopyTo(w io.Writer, query interface{}, params ...interface{}) (res Result, err error) {
 	err = tx.withConn(tx.ctx, func(c context.Context, cn *pool.Conn) error {
 		res, err = tx.db.copyTo(c, cn, w, query, params...)
+
 		return err
 	})
+
 	return res, err
 }
 
@@ -330,6 +345,7 @@ func (tx *Tx) begin(ctx context.Context) error {
 			break
 		}
 	}
+
 	return lastErr
 }
 
@@ -341,6 +357,7 @@ func (tx *Tx) Commit() error {
 func (tx *Tx) CommitContext(ctx context.Context) error {
 	_, err := tx.ExecContext(internal.UndoContext(ctx), "COMMIT")
 	tx.close()
+
 	return err
 }
 
@@ -352,6 +369,7 @@ func (tx *Tx) Rollback() error {
 func (tx *Tx) RollbackContext(ctx context.Context) error {
 	_, err := tx.ExecContext(internal.UndoContext(ctx), "ROLLBACK")
 	tx.close()
+
 	return err
 }
 
@@ -364,6 +382,7 @@ func (tx *Tx) CloseContext(ctx context.Context) error {
 	if tx.closed() {
 		return nil
 	}
+
 	return tx.RollbackContext(ctx)
 }
 

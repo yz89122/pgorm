@@ -33,9 +33,11 @@ func createManyToManySefTables(db *pg.DB) error {
 			Temp: true,
 		})
 		if err != nil {
+
 			return err
 		}
 	}
+
 	return nil
 }
 

@@ -25,6 +25,7 @@ func (p StreamingParser) SkipByte(skip byte) error {
 		return nil
 	}
 	_ = p.UnreadByte()
+
 	return fmt.Errorf("got %q, wanted %q", c, skip)
 }
 
@@ -56,6 +57,7 @@ func (p StreamingParser) ReadSubstring(b []byte) ([]byte, error) {
 				b = append(b, '\\')
 				c = next
 			}
+
 			continue
 		}
 

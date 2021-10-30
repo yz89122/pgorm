@@ -53,6 +53,7 @@ func (v RawValue) MarshalJSON() ([]byte, error) {
 func ReadColumnValue(col ColumnInfo, rd Reader, n int) (interface{}, error) {
 	switch col.DataType {
 	case pgBool:
+
 		return ScanBool(rd, n)
 
 	case pgInt2:
@@ -60,44 +61,58 @@ func ReadColumnValue(col ColumnInfo, rd Reader, n int) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		return int16(n), nil
 	case pgInt4:
 		n, err := scanInt64(rd, n, 32)
 		if err != nil {
 			return nil, err
 		}
+
 		return int32(n), nil
 	case pgInt8:
+
 		return ScanInt64(rd, n)
 
 	case pgFloat4:
+
 		return ScanFloat32(rd, n)
 	case pgFloat8:
+
 		return ScanFloat64(rd, n)
 
 	case pgBytea:
+
 		return ScanBytes(rd, n)
 	case pgText, pgVarchar, pgUUID:
+
 		return ScanString(rd, n)
 	case pgJSON, pgJSONB:
 		s, err := ScanString(rd, n)
 		if err != nil {
 			return nil, err
 		}
+
 		return json.RawMessage(s), nil
 
 	case pgTimestamp:
+
 		return ScanTime(rd, n)
 	case pgTimestamptz:
+
 		return ScanTime(rd, n)
 
 	case pgInt32Array:
+
 		return scanInt64Array(rd, n)
 	case pgInt8Array:
+
 		return scanInt64Array(rd, n)
 	case pgFloat8Array:
+
 		return scanFloat64Array(rd, n)
 	case pgStringArray:
+
 		return scanStringArray(rd, n)
 
 	default:
@@ -105,6 +120,7 @@ func ReadColumnValue(col ColumnInfo, rd Reader, n int) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		return RawValue{
 			Type:  col.DataType,
 			Value: s,

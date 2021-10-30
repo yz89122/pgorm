@@ -14,6 +14,7 @@ type User struct {
 }
 
 func (u User) String() string {
+
 	return fmt.Sprintf("User<%d %s %v>", u.Id, u.Name, u.Emails)
 }
 
@@ -25,6 +26,7 @@ type Story struct {
 }
 
 func (s Story) String() string {
+
 	return fmt.Sprintf("Story<%d %s %s>", s.Id, s.Title, s.Author)
 }
 
@@ -112,8 +114,10 @@ func createSchema(db *pg.DB) error {
 			Temp: true,
 		})
 		if err != nil {
+
 			return err
 		}
 	}
+
 	return nil
 }

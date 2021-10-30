@@ -44,17 +44,20 @@ func indexEqual(ind1, ind2 []int) bool {
 	if len(ind1) != len(ind2) {
 		return false
 	}
+
 	for i, ind := range ind1 {
 		if ind != ind2[i] {
 			return false
 		}
 	}
+
 	return true
 }
 
 func (f *Field) Clone() *Field {
 	cp := *f
 	cp.Index = cp.Index[:len(f.Index):len(f.Index)]
+
 	return &cp
 }
 
@@ -84,6 +87,7 @@ func (f *Field) hasZeroValue(v reflect.Value, index []int) bool {
 		}
 		v = v.Field(idx)
 	}
+
 	return f.isZero(v)
 }
 
@@ -100,9 +104,11 @@ func (f *Field) AppendValue(b []byte, strct reflect.Value, quote int) []byte {
 	if f.NullZero() && f.isZero(fv) {
 		return types.AppendNull(b, quote)
 	}
+
 	if f.append == nil {
 		panic(fmt.Errorf("pg: AppendValue(unsupported %s)", fv.Type()))
 	}
+
 	return f.append(b, fv, quote)
 }
 
@@ -143,5 +149,6 @@ func (m *Method) Value(strct reflect.Value) reflect.Value {
 
 func (m *Method) AppendValue(dst []byte, strct reflect.Value, quote int) []byte {
 	mv := m.Value(strct)
+
 	return m.appender(dst, mv, quote)
 }

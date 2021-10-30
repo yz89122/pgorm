@@ -15,6 +15,7 @@ import (
 // and maintains its own connection pool.
 func Connect(opt *Options) *DB {
 	opt.init()
+
 	return newDB(
 		context.Background(),
 		&baseDB{
@@ -31,6 +32,7 @@ func newDB(ctx context.Context, baseDB *baseDB) *DB {
 		ctx:    ctx,
 	}
 	db.baseDB.db = db
+
 	return db
 }
 
@@ -81,6 +83,7 @@ func (db *DB) Listen(ctx context.Context, channels ...string) *Listener {
 	}
 	ln.init()
 	_ = ln.Listen(ctx, channels...)
+
 	return ln
 }
 
@@ -114,6 +117,7 @@ func newConn(ctx context.Context, baseDB *baseDB) *Conn {
 		ctx:    ctx,
 	}
 	conn.baseDB.db = conn
+
 	return conn
 }
 
@@ -122,6 +126,7 @@ func (db *Conn) Context() context.Context {
 	if db.ctx != nil {
 		return db.ctx
 	}
+
 	return context.Background()
 }
 
