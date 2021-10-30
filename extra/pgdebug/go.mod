@@ -1,7 +1,7 @@
-module github.com/yz89122/pgorm/extra/pgdebug/v10
+module github.com/yz89122/pgorm/extra/pgdebug/v12
 
 go 1.15
 
-replace github.com/yz89122/pgorm/v10 => ../..
+replace github.com/yz89122/pgorm/v12 => ../..
 
-require github.com/yz89122/pgorm/v10 v10.10.6
+require github.com/yz89122/pgorm/v12 v12.0.0

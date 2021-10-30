@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/yz89122/pgorm/v10/internal"
-	"github.com/yz89122/pgorm/v10/internal/pool"
+	"github.com/yz89122/pgorm/v12/internal"
+	"github.com/yz89122/pgorm/v12/internal/pool"
 )
 
 var arrayValueScannerType = reflect.TypeOf((*ArrayValueScanner)(nil)).Elem()

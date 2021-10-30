@@ -1,6 +1,6 @@
 package types
 
-import "github.com/yz89122/pgorm/v10/internal/parser"
+import "github.com/yz89122/pgorm/v12/internal/parser"
 
 func AppendJSONB(b, jsonb []byte, flags int) []byte {
 	if hasFlag(flags, arrayFlag) {

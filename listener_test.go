@@ -4,10 +4,9 @@ import (
 	"net"
 	"time"
 
-	"github.com/yz89122/pgorm/v10"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	pg "github.com/yz89122/pgorm/v12"
 )
 
 var _ = Context("Listener", func() {

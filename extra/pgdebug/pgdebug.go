@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/yz89122/pgorm/v10"
+	pg "github.com/yz89122/pgorm/v12"
 )
 
 // DebugHook is a query hook that logs an error with a query if there are any.

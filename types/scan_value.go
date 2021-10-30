@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yz89122/pgorm/v10/internal"
-	"github.com/yz89122/pgorm/v10/pgjson"
+	"github.com/yz89122/pgorm/v12/internal"
+	"github.com/yz89122/pgorm/v12/pgjson"
 )
 
 var (

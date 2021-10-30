@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yz89122/pgorm/v10"
-	"github.com/yz89122/pgorm/v10/orm"
-	"github.com/yz89122/pgorm/v10/types"
+	pg "github.com/yz89122/pgorm/v12"
+	"github.com/yz89122/pgorm/v12/orm"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 func benchmarkDB() *pg.DB {

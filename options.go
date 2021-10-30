@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yz89122/pgorm/v10/internal/pool"
+	"github.com/yz89122/pgorm/v12/internal/pool"
 )
 
 // Options contains database connection options.

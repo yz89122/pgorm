@@ -14,10 +14,10 @@ import (
 
 	"mellium.im/sasl"
 
-	"github.com/yz89122/pgorm/v10/internal"
-	"github.com/yz89122/pgorm/v10/internal/pool"
-	"github.com/yz89122/pgorm/v10/orm"
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/internal"
+	"github.com/yz89122/pgorm/v12/internal/pool"
+	"github.com/yz89122/pgorm/v12/orm"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 // https://www.postgresql.org/docs/current/protocol-message-formats.html

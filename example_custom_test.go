@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yz89122/pgorm/v10/orm"
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/orm"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 const pgTimeFormat = "15:04:05.999999999"

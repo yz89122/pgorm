@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/yz89122/pgorm/v10/internal"
+	"github.com/yz89122/pgorm/v12/internal"
 )
 
 type sliceTableModel struct {

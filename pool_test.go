@@ -3,7 +3,7 @@ package pg_test
 import (
 	"time"
 
-	"github.com/yz89122/pgorm/v10"
+	pg "github.com/yz89122/pgorm/v12"
 	. "gopkg.in/check.v1"
 )
 

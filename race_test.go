@@ -5,10 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yz89122/pgorm/v10"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	pg "github.com/yz89122/pgorm/v12"
 )
 
 func concurrency() (int, int) {

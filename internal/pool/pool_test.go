@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yz89122/pgorm/v10/internal/pool"
+	"github.com/yz89122/pgorm/v12/internal/pool"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

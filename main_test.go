@@ -10,9 +10,8 @@ import (
 	"time"
 
 	. "github.com/onsi/ginkgo"
+	pg "github.com/yz89122/pgorm/v12"
 	. "gopkg.in/check.v1"
-
-	"github.com/yz89122/pgorm/v10"
 )
 
 func TestUnixSocket(t *testing.T) {

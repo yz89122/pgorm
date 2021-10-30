@@ -3,7 +3,7 @@ package internal_test
 import (
 	"testing"
 
-	"github.com/yz89122/pgorm/v10/internal"
+	"github.com/yz89122/pgorm/v12/internal"
 )
 
 func TestUnderscore(t *testing.T) {

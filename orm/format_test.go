@@ -7,8 +7,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/yz89122/pgorm/v10/orm"
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/orm"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 type ValuerError string

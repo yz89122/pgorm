@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/yz89122/pgorm/v10/internal/pool"
-	"github.com/yz89122/pgorm/v10/types"
+	"github.com/yz89122/pgorm/v12/internal/pool"
+	"github.com/yz89122/pgorm/v12/types"
 )
 
 func compositeScanner(typ reflect.Type) types.ScannerFunc {
