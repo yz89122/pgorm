@@ -30,6 +30,7 @@ func (q *SelectQuery) String() string {
 	if err != nil {
 		panic(err)
 	}
+
 	return string(b)
 }
 
@@ -108,6 +109,7 @@ func (q *SelectQuery) AppendQuery(fmter QueryFormatter, b []byte) (_ []byte, err
 	err = q.q.forEachHasOneJoin(func(j *join) error {
 		b = append(b, ' ')
 		b, err = j.appendHasOneJoin(fmter, b, q.q)
+
 		return err
 	})
 	if err != nil {
@@ -240,6 +242,7 @@ func (q SelectQuery) appendColumns(fmter QueryFormatter, b []byte) (_ []byte, er
 		}
 
 		b = j.appendHasOneColumns(b)
+
 		return nil
 	})
 	if err != nil {
@@ -264,6 +267,7 @@ func (q *SelectQuery) isDistinct() bool {
 			}
 		}
 	}
+
 	return false
 }
 

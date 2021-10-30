@@ -60,16 +60,20 @@ func (ln *Listener) connWithLock(ctx context.Context) (*pool.Conn, error) {
 	cn, err := ln.conn(ctx)
 	ln.mu.Unlock()
 
-	switch err {
-	case nil:
+	switch {
+	case err == nil:
+
 		return cn, nil
-	case errListenerClosed:
+	case errors.Is(err, errListenerClosed):
+
 		return nil, err
-	case pool.ErrClosed:
+	case errors.Is(err, pool.ErrClosed):
 		_ = ln.Close()
+
 		return nil, errListenerClosed
 	default:
 		internal.Logger.Printf(ctx, "pg: Listen failed: %s", err)
+
 		return nil, err
 	}
 }
@@ -90,6 +94,7 @@ func (ln *Listener) conn(ctx context.Context) (*pool.Conn, error) {
 
 	if err := ln.db.initConn(ctx, cn); err != nil {
 		_ = ln.db.pool.CloseConn(cn)
+
 		return nil, err
 	}
 
@@ -99,11 +104,13 @@ func (ln *Listener) conn(ctx context.Context) (*pool.Conn, error) {
 		err := ln.listen(ctx, cn, ln.channels...)
 		if err != nil {
 			_ = ln.db.pool.CloseConn(cn)
+
 			return nil, err
 		}
 	}
 
 	ln.cn = cn
+
 	return cn, nil
 }
 
@@ -132,6 +139,7 @@ func (ln *Listener) closeTheCn(reason error) error {
 
 	err := ln.db.pool.CloseConn(ln.cn)
 	ln.cn = nil
+
 	return err
 }
 
@@ -163,6 +171,7 @@ func (ln *Listener) Listen(ctx context.Context, channels ...string) error {
 
 	if err := ln.listen(ctx, cn, channels...); err != nil {
 		ln.releaseConn(ctx, cn, err, false)
+
 		return err
 	}
 
@@ -176,8 +185,10 @@ func (ln *Listener) listen(ctx context.Context, cn *pool.Conn, channels ...strin
 				return err
 			}
 		}
+
 		return nil
 	})
+
 	return err
 }
 
@@ -194,6 +205,7 @@ func (ln *Listener) Unlisten(ctx context.Context, channels ...string) error {
 
 	if err := ln.unlisten(ctx, cn, channels...); err != nil {
 		ln.releaseConn(ctx, cn, err, false)
+
 		return err
 	}
 
@@ -207,8 +219,10 @@ func (ln *Listener) unlisten(ctx context.Context, cn *pool.Conn, channels ...str
 				return err
 			}
 		}
+
 		return nil
 	})
+
 	return err
 }
 
@@ -230,10 +244,12 @@ func (ln *Listener) ReceiveTimeout(
 
 	err = cn.WithReader(ctx, timeout, func(rd *pool.ReaderContext) error {
 		channel, payload, err = readNotification(rd)
+
 		return err
 	})
 	if err != nil {
 		ln.releaseConn(ctx, cn, err, timeout > 0)
+
 		return "", "", err
 	}
 
@@ -263,6 +279,7 @@ func (ln *Listener) channel(size int) <-chan Notification {
 		err := fmt.Errorf("pg: Listener.Channel is called with different buffer size")
 		panic(err)
 	}
+
 	return ln.ch
 }
 
@@ -284,8 +301,9 @@ func (ln *Listener) initChannel(size int) {
 		for {
 			channel, payload, err := ln.Receive(ctx)
 			if err != nil {
-				if err == errListenerClosed {
+				if errors.Is(err, errListenerClosed) {
 					close(ln.ch)
+
 					return
 				}
 
@@ -353,6 +371,7 @@ func (ln *Listener) initChannel(size int) {
 					ln.mu.Unlock()
 				}
 			case <-ln.exit:
+
 				return
 			}
 		}
@@ -361,6 +380,7 @@ func (ln *Listener) initChannel(size int) {
 
 func (ln *Listener) ping() error {
 	_, err := ln.db.Exec("NOTIFY ?", pgChan(gopgChannel))
+
 	return err
 }
 
@@ -374,6 +394,7 @@ loop:
 		}
 		ss = append(ss, e)
 	}
+
 	return ss
 }
 
@@ -384,10 +405,12 @@ func removeIfExists(ss []string, es ...string) []string {
 				last := len(ss) - 1
 				ss[i] = ss[last]
 				ss = ss[:last]
+
 				break
 			}
 		}
 	}
+
 	return ss
 }
 

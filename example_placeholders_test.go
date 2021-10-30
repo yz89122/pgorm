@@ -12,6 +12,7 @@ type Params struct {
 }
 
 func (p *Params) Sum() int {
+
 	return p.X + p.Y
 }
 

@@ -215,6 +215,7 @@ func ExampleDB_Model_selectOrInsert() {
 		Column("id").
 		Where("name = ?name").
 		OnConflict("DO NOTHING"). // OnConflict is optional
+
 		Returning("id").
 		SelectOrInsert()
 	if err != nil {
@@ -357,6 +358,7 @@ func ExampleDB_Model_selectWhereGroup() {
 		WhereGroup(func(q *pg.Query) (*pg.Query, error) {
 			q = q.WhereOr("id = 1").
 				WhereOr("id = 2")
+
 			return q, nil
 		}).
 		Where("title IS NOT NULL").
@@ -453,6 +455,7 @@ func ExampleDB_Model_selectApplyFunc() {
 		if editorId != 0 {
 			q = q.Where("editor_id = ?", editorId)
 		}
+
 		return q, nil
 	}
 
@@ -539,6 +542,7 @@ func ExampleDB_Model_forEach() {
 		OrderExpr("id ASC").
 		ForEach(func(b *Book) error {
 			fmt.Println(b)
+
 			return nil
 		})
 	if err != nil {
@@ -704,6 +708,7 @@ func ExampleDB_Model_hasMany() {
 	err := db.Model(&user).
 		Column("user.*").
 		Relation("Profiles", func(q *pg.Query) (*pg.Query, error) {
+
 			return q.Where("active IS TRUE"), nil
 		}).
 		First()

@@ -18,7 +18,7 @@ var _ TableModel = (*manyModel)(nil)
 
 func newManyModel(j *join) *manyModel {
 	baseTable := j.BaseModel.Table()
-	joinModel := j.JoinModel.(*sliceTableModel)
+	joinModel := j.JoinModel.(*sliceTableModel) //nolint:forcetypeassert
 	dstValues := dstValues(joinModel, j.Rel.BaseFKs)
 	if len(dstValues) == 0 {
 		return nil
@@ -33,6 +33,7 @@ func newManyModel(j *join) *manyModel {
 	if !m.sliceOfPtr {
 		m.strct = reflect.New(m.table.Type).Elem()
 	}
+
 	return &m
 }
 
@@ -43,6 +44,7 @@ func (m *manyModel) NextColumnScanner() ColumnScanner {
 		m.strct.Set(m.table.zeroStruct)
 	}
 	m.structInited = false
+
 	return m
 }
 
@@ -58,11 +60,13 @@ func (m *manyModel) AddColumnScanner(model ColumnScanner) error {
 	for i, v := range dstValues {
 		if !m.sliceOfPtr {
 			v.Set(reflect.Append(v, m.strct))
+
 			continue
 		}
 
 		if i == 0 {
 			v.Set(reflect.Append(v, m.strct.Addr()))
+
 			continue
 		}
 

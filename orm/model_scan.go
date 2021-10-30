@@ -16,6 +16,7 @@ var _ Model = scanValuesModel{}
 
 //nolint
 func Scan(values ...interface{}) scanValuesModel {
+
 	return scanValuesModel{
 		values: values,
 	}
@@ -34,6 +35,7 @@ func (m scanValuesModel) ScanColumn(col types.ColumnInfo, rd types.Reader, n int
 		return fmt.Errorf("pg: no Scan var for column index=%d name=%q",
 			col.Index, col.Name)
 	}
+
 	return types.Scan(m.values[col.Index], rd, n)
 }
 
@@ -65,5 +67,6 @@ func (m scanReflectValuesModel) ScanColumn(col types.ColumnInfo, rd types.Reader
 		return fmt.Errorf("pg: no Scan var for column index=%d name=%q",
 			col.Index, col.Name)
 	}
+
 	return types.ScanValue(m.values[col.Index], rd, n)
 }

@@ -43,6 +43,7 @@ func (c *ColumnAlloc) New(index int16, name []byte) *ColumnInfo {
 		Index: index,
 		Name:  string(name),
 	})
+
 	return &c.columns[len(c.columns)-1]
 }
 
@@ -57,6 +58,7 @@ type ReaderContext struct {
 
 func NewReaderContext() *ReaderContext {
 	const bufSize = 1 << 20 // 1mb
+
 	return &ReaderContext{
 		BufReader:   NewBufReader(bufSize),
 		ColumnAlloc: NewColumnAlloc(),
@@ -65,12 +67,14 @@ func NewReaderContext() *ReaderContext {
 
 var readerPool = sync.Pool{
 	New: func() interface{} {
+
 		return NewReaderContext()
 	},
 }
 
 func GetReaderContext() *ReaderContext {
-	rd := readerPool.Get().(*ReaderContext)
+	rd := readerPool.Get().(*ReaderContext) //nolint:forcetypeassert
+
 	return rd
 }
 

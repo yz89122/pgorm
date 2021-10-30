@@ -28,6 +28,7 @@ func ArrayAppender(typ reflect.Type) AppenderFunc {
 	}
 	fn := arrayAppender(typ)
 	arrayAppendersMap.Store(typ, fn)
+
 	return fn
 }
 
@@ -42,6 +43,7 @@ func arrayAppender(typ reflect.Type) AppenderFunc {
 	case reflect.Slice, reflect.Array:
 		// ok:
 	default:
+
 		return nil
 	}
 
@@ -50,17 +52,22 @@ func arrayAppender(typ reflect.Type) AppenderFunc {
 	if kind == reflect.Slice {
 		switch elemType {
 		case stringType:
+
 			return appendSliceStringValue
 		case intType:
+
 			return appendSliceIntValue
 		case int64Type:
+
 			return appendSliceInt64Value
 		case float64Type:
+
 			return appendSliceFloat64Value
 		}
 	}
 
 	appendElem := appender(elemType, true)
+
 	return func(b []byte, v reflect.Value, flags int) []byte {
 		flags |= arrayFlag
 
@@ -104,7 +111,8 @@ func arrayAppender(typ reflect.Type) AppenderFunc {
 }
 
 func appendSliceStringValue(b []byte, v reflect.Value, flags int) []byte {
-	ss := v.Convert(sliceStringType).Interface().([]string)
+	ss := v.Convert(sliceStringType).Interface().([]string) //nolint:forcetypeassert
+
 	return appendSliceString(b, ss, flags)
 }
 
@@ -137,7 +145,8 @@ func appendSliceString(b []byte, ss []string, flags int) []byte {
 }
 
 func appendSliceIntValue(b []byte, v reflect.Value, flags int) []byte {
-	ints := v.Convert(sliceIntType).Interface().([]int)
+	ints := v.Convert(sliceIntType).Interface().([]int) //nolint:forcetypeassert
+
 	return appendSliceInt(b, ints, flags)
 }
 
@@ -170,7 +179,8 @@ func appendSliceInt(b []byte, ints []int, flags int) []byte {
 }
 
 func appendSliceInt64Value(b []byte, v reflect.Value, flags int) []byte {
-	ints := v.Convert(sliceInt64Type).Interface().([]int64)
+	ints := v.Convert(sliceInt64Type).Interface().([]int64) //nolint:forcetypeassert
+
 	return appendSliceInt64(b, ints, flags)
 }
 
@@ -203,7 +213,8 @@ func appendSliceInt64(b []byte, ints []int64, flags int) []byte {
 }
 
 func appendSliceFloat64Value(b []byte, v reflect.Value, flags int) []byte {
-	floats := v.Convert(sliceFloat64Type).Interface().([]float64)
+	floats := v.Convert(sliceFloat64Type).Interface().([]float64) //nolint:forcetypeassert
+
 	return appendSliceFloat64(b, floats, flags)
 }
 

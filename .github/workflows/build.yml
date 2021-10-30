@@ -34,6 +34,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup Python2 for pre-commit
+        uses: actions/setup-python@v2
+
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Install tomlv
+        run: go install github.com/BurntSushi/toml/cmd/tomlv@master
+
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.42.1
+
+      - name: pre-commit
+        uses: pre-commit/action@v2.0.3
+
       - name: Install hstore
         run: PGPASSWORD=postgres psql -U postgres -h localhost -c "CREATE EXTENSION hstore"
 

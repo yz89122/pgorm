@@ -25,8 +25,10 @@ func (j *join) AppendOn(app *condAppender) {
 func (j *join) Select(fmter QueryFormatter, q *Query) error {
 	switch j.Rel.Type {
 	case HasManyRelation:
+
 		return j.selectMany(fmter, q)
 	case Many2ManyRelation:
+
 		return j.selectM2M(fmter, q)
 	}
 	panic("not reached")
@@ -40,6 +42,7 @@ func (j *join) selectMany(_ QueryFormatter, q *Query) error {
 	if q == nil {
 		return nil
 	}
+
 	return q.Select()
 }
 
@@ -94,6 +97,7 @@ func (j *join) selectM2M(fmter QueryFormatter, q *Query) error {
 	if q == nil {
 		return nil
 	}
+
 	return q.Select()
 }
 
@@ -154,9 +158,11 @@ func (j *join) hasParent() bool {
 	if j.Parent != nil {
 		switch j.Parent.Rel.Type {
 		case HasOneRelation, BelongsToRelation:
+
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -164,6 +170,7 @@ func (j *join) appendAlias(b []byte) []byte {
 	b = append(b, '"')
 	b = appendAlias(b, j)
 	b = append(b, '"')
+
 	return b
 }
 
@@ -173,6 +180,7 @@ func (j *join) appendAliasColumn(b []byte, column string) []byte {
 	b = append(b, "__"...)
 	b = append(b, column...)
 	b = append(b, '"')
+
 	return b
 }
 
@@ -181,8 +189,10 @@ func (j *join) appendBaseAlias(b []byte) []byte {
 		b = append(b, '"')
 		b = appendAlias(b, j.Parent)
 		b = append(b, '"')
+
 		return b
 	}
+
 	return append(b, j.BaseModel.Table().Alias...)
 }
 
@@ -194,6 +204,7 @@ func (j *join) appendSoftDelete(b []byte, flags queryFlag) []byte {
 	} else {
 		b = append(b, " IS NULL"...)
 	}
+
 	return b
 }
 
@@ -203,6 +214,7 @@ func appendAlias(b []byte, j *join) []byte {
 		b = append(b, "__"...)
 	}
 	b = append(b, j.Rel.Field.SQLName...)
+
 	return b
 }
 
@@ -218,6 +230,7 @@ func (j *join) appendHasOneColumns(b []byte) []byte {
 			b = append(b, " AS "...)
 			b = j.appendAliasColumn(b, f.SQLName)
 		}
+
 		return b
 	}
 
@@ -312,10 +325,12 @@ func (q *hasManyColumnsAppender) AppendQuery(fmter QueryFormatter, b []byte) ([]
 			b = append(b, '.')
 			b = types.AppendIdent(b, column, 1)
 		}
+
 		return b, nil
 	}
 
 	b = appendColumns(b, joinTable.Alias, joinTable.Fields)
+
 	return b, nil
 }
 
@@ -347,5 +362,6 @@ func appendChildValues(b []byte, v reflect.Value, index []int, fields []*Field) 
 	if len(seen) > 0 {
 		b = b[:len(b)-2] // trim ", "
 	}
+
 	return b
 }

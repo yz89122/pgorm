@@ -170,5 +170,6 @@ var _ = Describe("CreateTable", func() {
 
 func createTableQueryString(q *Query, opt *CreateTableOptions) string {
 	qq := NewCreateTableQuery(q, opt)
+
 	return queryString(qq)
 }

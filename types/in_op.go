@@ -35,6 +35,7 @@ func (in *inOp) AppendValue(b []byte, flags int) ([]byte, error) {
 	if in.stickyErr != nil {
 		return nil, in.stickyErr
 	}
+
 	return appendIn(b, in.slice, flags), nil
 }
 
@@ -58,5 +59,6 @@ func appendIn(b []byte, slice reflect.Value, flags int) []byte {
 			b = appendValue(b, elem, flags)
 		}
 	}
+
 	return b
 }

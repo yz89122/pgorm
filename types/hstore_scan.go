@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -9,6 +10,7 @@ func HstoreScanner(typ reflect.Type) ScannerFunc {
 	if typ.Key() == stringType && typ.Elem() == stringType {
 		return scanMapStringStringValue
 	}
+
 	return func(v reflect.Value, rd Reader, n int) error {
 		return fmt.Errorf("pg.Hstore(unsupported %s)", v.Type())
 	}
@@ -21,6 +23,7 @@ func scanMapStringStringValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.Set(reflect.ValueOf(m))
+
 	return nil
 }
 
@@ -34,9 +37,10 @@ func scanMapStringString(rd Reader, n int) (map[string]string, error) {
 	for {
 		key, err := p.NextKey()
 		if err != nil {
-			if err == errEndOfHstore {
+			if errors.Is(err, errEndOfHstore) {
 				break
 			}
+
 			return nil, err
 		}
 
@@ -47,5 +51,6 @@ func scanMapStringString(rd Reader, n int) (map[string]string, error) {
 
 		m[string(key)] = string(value)
 	}
+
 	return m, nil
 }

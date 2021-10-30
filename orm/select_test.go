@@ -78,6 +78,7 @@ var _ = Describe("Select", func() {
 		q := NewQuery(nil, &SelectModel{}).
 			Relation("HasOne", func(q *Query) (*Query, error) {
 				q = q.JoinOn("1 = 2")
+
 				return q, nil
 			})
 
@@ -113,6 +114,7 @@ var _ = Describe("Select", func() {
 		q := NewQuery(nil, &SelectModel{Id: 1}).
 			Relation("HasMany", func(q *Query) (*Query, error) {
 				q = q.ColumnExpr("expr")
+
 				return q, nil
 			})
 
@@ -183,6 +185,7 @@ var _ = Describe("Select", func() {
 	It("supports WhereGroup", func() {
 		q := NewQuery(nil).Where("TRUE").WhereGroup(func(q *Query) (*Query, error) {
 			q = q.Where("FALSE").WhereOr("TRUE")
+
 			return q, nil
 		})
 
@@ -193,6 +196,7 @@ var _ = Describe("Select", func() {
 	It("supports WhereOrGroup", func() {
 		q := NewQuery(nil).Where("TRUE").WhereOrGroup(func(q *Query) (*Query, error) {
 			q = q.Where("FALSE").Where("TRUE")
+
 			return q, nil
 		})
 
@@ -202,6 +206,7 @@ var _ = Describe("Select", func() {
 
 	It("supports empty WhereGroup", func() {
 		q := NewQuery(nil).Where("TRUE").WhereGroup(func(q *Query) (*Query, error) {
+
 			return q, nil
 		})
 
@@ -497,6 +502,7 @@ var _ = Describe("union", func() {
 func selectQueryString(q *Query) string {
 	sel := NewSelectQuery(q)
 	s := queryString(sel)
+
 	return s
 }
 
@@ -504,6 +510,7 @@ func queryString(model QueryAppender) string {
 	fmter := NewFormatter().WithModel(model)
 	b, err := model.AppendQuery(fmter, nil)
 	Expect(err).NotTo(HaveOccurred())
+
 	return string(b)
 }
 

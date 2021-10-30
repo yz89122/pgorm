@@ -40,7 +40,7 @@ func main() {
 		},
 	}
 
-	if err := db.Insert(&t); err != nil {
+	if _, err := db.Model(&t).Insert(); err != nil {
 		log.Fatal(err)
 	}
 }

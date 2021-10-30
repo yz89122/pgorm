@@ -19,7 +19,9 @@ func shouldQuoteArray(flags int) bool {
 func nilable(v reflect.Value) bool {
 	switch v.Kind() {
 	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+
 		return true
 	}
+
 	return false
 }

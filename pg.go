@@ -139,6 +139,7 @@ func (strings *Strings) Init() error {
 	if s := *strings; len(s) > 0 {
 		*strings = s[:0]
 	}
+
 	return nil
 }
 
@@ -155,12 +156,12 @@ func (Strings) AddColumnScanner(_ orm.ColumnScanner) error {
 // ScanColumn scans the columns and appends them to `strings`.
 func (strings *Strings) ScanColumn(col types.ColumnInfo, rd types.Reader, n int) error {
 	b := make([]byte, n)
-	_, err := io.ReadFull(rd, b)
-	if err != nil {
+	if _, err := io.ReadFull(rd, b); err != nil {
 		return err
 	}
 
 	*strings = append(*strings, internal.BytesToString(b))
+
 	return nil
 }
 
@@ -175,6 +176,7 @@ func (strings Strings) AppendValue(dst []byte, quote int) ([]byte, error) {
 		dst = append(dst, ',')
 	}
 	dst = dst[:len(dst)-1]
+
 	return dst, nil
 }
 
@@ -193,6 +195,7 @@ func (ints *Ints) Init() error {
 	if s := *ints; len(s) > 0 {
 		*ints = s[:0]
 	}
+
 	return nil
 }
 
@@ -214,6 +217,7 @@ func (ints *Ints) ScanColumn(col types.ColumnInfo, rd types.Reader, n int) error
 	}
 
 	*ints = append(*ints, num)
+
 	return nil
 }
 
@@ -228,6 +232,7 @@ func (ints Ints) AppendValue(dst []byte, quote int) ([]byte, error) {
 		dst = append(dst, ',')
 	}
 	dst = dst[:len(dst)-1]
+
 	return dst, nil
 }
 
@@ -243,6 +248,7 @@ func (set *IntSet) Init() error {
 	if len(*set) > 0 {
 		*set = make(map[int64]struct{})
 	}
+
 	return nil
 }
 
@@ -270,5 +276,6 @@ func (set *IntSet) ScanColumn(col types.ColumnInfo, rd types.Reader, n int) erro
 	}
 
 	setVal[num] = struct{}{}
+
 	return nil
 }

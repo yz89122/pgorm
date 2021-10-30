@@ -24,16 +24,20 @@ type JSONMap map[string]interface{}
 func (m *JSONMap) Scan(b interface{}) error {
 	if b == nil {
 		*m = nil
+
 		return nil
 	}
+
 	return pgjson.Unmarshal(b.([]byte), m)
 }
 
 func (m JSONMap) Value() (driver.Value, error) {
 	b, err := pgjson.Marshal(m)
 	if err != nil {
+
 		return nil, err
 	}
+
 	return string(b), nil
 }
 
@@ -46,6 +50,7 @@ type Valuer struct {
 var _ driver.Valuer = (*Valuer)(nil)
 
 func (v Valuer) Value() (driver.Value, error) {
+
 	return v.v, nil
 }
 
@@ -55,11 +60,14 @@ func (v *Valuer) Scan(src interface{}) error {
 	switch src := src.(type) {
 	case nil:
 		v.v = ""
+
 		return nil
 	case []byte:
 		v.v = string(src)
+
 		return nil
 	default:
+
 		return fmt.Errorf("unsupported type: %T", src)
 	}
 }
@@ -81,11 +89,14 @@ type conversionTest struct {
 
 func unwrap(v interface{}) interface{} {
 	if arr, ok := v.(*types.Array); ok {
+
 		return arr.Value()
 	}
 	if hstore, ok := v.(*types.Hstore); ok {
+
 		return hstore.Value()
 	}
+
 	return v
 }
 
@@ -95,16 +106,20 @@ func deref(vi interface{}) interface{} {
 		v = v.Elem()
 	}
 	if v.IsValid() {
+
 		return v.Interface()
 	}
+
 	return nil
 }
 
 func zero(v interface{}) interface{} {
+
 	return reflect.Zero(reflect.ValueOf(v).Elem().Type()).Interface()
 }
 
 func (test *conversionTest) String() string {
+
 	return fmt.Sprintf("#%d src=%#v dst=%#v", test.i, test.src, test.dst)
 }
 
@@ -113,6 +128,7 @@ func (test *conversionTest) Assert(t *testing.T, err error) {
 		if err == nil || err.Error() != test.wanterr {
 			t.Fatalf("got error %v, wanted %q (%s)", err, test.wanterr, test)
 		}
+
 		return
 	}
 
@@ -121,6 +137,7 @@ func (test *conversionTest) Assert(t *testing.T, err error) {
 	}
 
 	if test.wantnothing {
+
 		return
 	}
 
@@ -129,12 +146,15 @@ func (test *conversionTest) Assert(t *testing.T, err error) {
 	if test.wantnil {
 		dstValue := reflect.ValueOf(dst)
 		if !dstValue.IsValid() {
+
 			return
 		}
 		if dstValue.IsNil() {
+
 			return
 		}
 		t.Fatalf("got %#v, wanted nil (%s)", dst, test)
+
 		return
 	}
 
@@ -158,6 +178,7 @@ func (test *conversionTest) Assert(t *testing.T, err error) {
 				t.Fatalf("%#v != %#v (%s)", dst, zero, test)
 			}
 		}
+
 		return
 	}
 
@@ -166,6 +187,7 @@ func (test *conversionTest) Assert(t *testing.T, err error) {
 		if dstTime.Unix() != srcTime.Unix() {
 			t.Fatalf("%#v != %#v", dstTime, srcTime)
 		}
+
 		return
 	}
 
@@ -177,6 +199,7 @@ func (test *conversionTest) Assert(t *testing.T, err error) {
 				t.Fatalf("%#v != %#v", dstTime, srcTime)
 			}
 		}
+
 		return
 	}
 
@@ -190,6 +213,7 @@ func (test *conversionTest) Assert(t *testing.T, err error) {
 }
 
 func conversionTests() []conversionTest {
+
 	return []conversionTest{
 		{src: nil, dst: nil, wanterr: "pg: Scan(nil)"},
 		{src: nil, dst: new(uintptr), wanterr: "pg: Scan(unsupported uintptr)"},
@@ -479,6 +503,7 @@ func mustParseCIDR(s string) *net.IPNet {
 	if err != nil {
 		panic(err)
 	}
+
 	return ipnet
 }
 

@@ -151,8 +151,10 @@ var _ = Describe("Tx", func() {
 		_ = db.RunInTransaction(ctx, func(tx *pg.Tx) error {
 			stmt, err := tx.Prepare("invalid statement")
 			if err != nil {
+
 				return err
 			}
+
 			return stmt.Close()
 		})
 

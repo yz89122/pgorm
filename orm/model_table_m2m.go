@@ -22,7 +22,7 @@ var _ TableModel = (*m2mModel)(nil)
 
 func newM2MModel(j *join) *m2mModel {
 	baseTable := j.BaseModel.Table()
-	joinModel := j.JoinModel.(*sliceTableModel)
+	joinModel := j.JoinModel.(*sliceTableModel) //nolint:forcetypeassert
 	dstValues := dstValues(joinModel, baseTable.PKs)
 	if len(dstValues) == 0 {
 		return nil
@@ -38,6 +38,7 @@ func newM2MModel(j *join) *m2mModel {
 	if !m.sliceOfPtr {
 		m.strct = reflect.New(m.table.Type).Elem()
 	}
+
 	return m
 }
 
@@ -48,6 +49,7 @@ func (m *m2mModel) NextColumnScanner() ColumnScanner {
 		m.strct.Set(m.table.zeroStruct)
 	}
 	m.structInited = false
+
 	return m
 }
 
@@ -88,6 +90,7 @@ func (m *m2mModel) modelIDMap(b []byte) ([]byte, error) {
 				m.sliceTableModel, col)
 		}
 	}
+
 	return b, nil
 }
 
@@ -107,5 +110,6 @@ func (m *m2mModel) ScanColumn(col types.ColumnInfo, rd types.Reader, n int) erro
 	if ok, err := m.sliceTableModel.scanColumn(col, rd, n); ok {
 		return err
 	}
+
 	return nil
 }

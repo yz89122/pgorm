@@ -31,7 +31,6 @@ var (
 	_ types.ValueAppender = (*SafeQueryAppender)(nil)
 )
 
-//nolint
 func SafeQuery(query string, params ...interface{}) *SafeQueryAppender {
 	return &SafeQueryAppender{query, params}
 }
@@ -49,6 +48,7 @@ func (q *SafeQueryAppender) Value() types.Safe {
 	if err != nil {
 		return types.Safe(err.Error())
 	}
+
 	return types.Safe(internal.BytesToString(b))
 }
 
@@ -80,6 +80,7 @@ func (q *condGroupAppender) AppendQuery(fmter QueryFormatter, b []byte) (_ []byt
 		}
 	}
 	b = append(b, ')')
+
 	return b, nil
 }
 
@@ -104,6 +105,7 @@ func (q *condAppender) AppendQuery(fmter QueryFormatter, b []byte) ([]byte, erro
 	b = append(b, '(')
 	b = fmter.FormatQuery(b, q.cond, q.params...)
 	b = append(b, ')')
+
 	return b, nil
 }
 
@@ -129,6 +131,7 @@ func (f dummyFormatter) FormatQuery(b []byte, query string, params ...interface{
 
 func isTemplateFormatter(fmter QueryFormatter) bool {
 	_, ok := fmter.(dummyFormatter)
+
 	return ok
 }
 
@@ -167,6 +170,7 @@ func (f *Formatter) String() string {
 	for i, k := range keys {
 		ss[i] = fmt.Sprintf("%s=%v", k, f.namedParams[k])
 	}
+
 	return " " + strings.Join(ss, " ")
 }
 
@@ -187,16 +191,20 @@ func (f *Formatter) clone() *Formatter {
 func (f *Formatter) WithTableModel(model TableModel) *Formatter {
 	cp := f.clone()
 	cp.model = model
+
 	return cp
 }
 
 func (f *Formatter) WithModel(model interface{}) *Formatter {
 	switch model := model.(type) {
 	case TableModel:
+
 		return f.WithTableModel(model)
 	case *Query:
+
 		return f.WithTableModel(model.tableModel)
 	case QueryCommand:
+
 		return f.WithTableModel(model.Query().tableModel)
 	default:
 		panic(fmt.Errorf("pg: unsupported model %T", model))
@@ -213,6 +221,7 @@ func (f *Formatter) setParam(param string, value interface{}) {
 func (f *Formatter) WithParam(param string, value interface{}) *Formatter {
 	cp := f.clone()
 	cp.setParam(param, value)
+
 	return cp
 }
 
@@ -228,6 +237,7 @@ func (f *Formatter) FormatQueryBytes(dst, query []byte, params ...interface{}) [
 	if (params == nil && !f.hasParams()) || bytes.IndexByte(query, '?') == -1 {
 		return append(dst, query...)
 	}
+
 	return f.append(dst, parser.New(query), params)
 }
 
@@ -235,6 +245,7 @@ func (f *Formatter) FormatQuery(dst []byte, query string, params ...interface{})
 	if (params == nil && !f.hasParams()) || strings.IndexByte(query, '?') == -1 {
 		return append(dst, query...)
 	}
+
 	return f.append(dst, parser.NewString(query), params)
 }
 
@@ -247,11 +258,13 @@ func (f *Formatter) append(dst []byte, p *parser.Parser, params []interface{}) [
 		b, ok := p.ReadSep('?')
 		if !ok {
 			dst = append(dst, b...)
+
 			continue
 		}
 		if len(b) > 0 && b[len(b)-1] == '\\' {
 			dst = append(dst, b[:len(b)-1]...)
 			dst = append(dst, '?')
+
 			continue
 		}
 		dst = append(dst, b...)
@@ -269,6 +282,7 @@ func (f *Formatter) append(dst []byte, p *parser.Parser, params []interface{}) [
 				}
 
 				dst = f.appendParam(dst, params[idx])
+
 				continue
 			}
 
@@ -276,6 +290,7 @@ func (f *Formatter) append(dst []byte, p *parser.Parser, params []interface{}) [
 				param, paramOK := f.namedParams[id]
 				if paramOK {
 					dst = f.appendParam(dst, param)
+
 					continue
 				}
 			}
@@ -302,11 +317,13 @@ func (f *Formatter) append(dst []byte, p *parser.Parser, params []interface{}) [
 		restore_param:
 			dst = append(dst, '?')
 			dst = append(dst, id...)
+
 			continue
 		}
 
 		if paramsIndex >= len(params) {
 			dst = append(dst, '?')
+
 			continue
 		}
 
@@ -326,8 +343,10 @@ func (f *Formatter) appendParam(b []byte, param interface{}) []byte {
 		if err != nil {
 			return types.AppendError(b, err)
 		}
+
 		return bb
 	default:
+
 		return types.Append(b, param, 1)
 	}
 }

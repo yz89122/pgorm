@@ -43,10 +43,7 @@ func msgpackScanner(_ reflect.Type) types.ScannerFunc {
 		defer msgpack.PutDecoder(dec)
 
 		dec.Reset(hexDec)
-		if err := dec.DecodeValue(v); err != nil {
-			return err
-		}
 
-		return nil
+		return dec.DecodeValue(v)
 	}
 }

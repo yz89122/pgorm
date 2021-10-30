@@ -114,12 +114,14 @@ func (t *DBTest) TestIntegrityError(c *C) {
 type customStrSlice []string
 
 func (s customStrSlice) Value() (driver.Value, error) {
+
 	return strings.Join(s, "\n"), nil
 }
 
 func (s *customStrSlice) Scan(v interface{}) error {
 	if v == nil {
 		*s = nil
+
 		return nil
 	}
 
@@ -127,10 +129,12 @@ func (s *customStrSlice) Scan(v interface{}) error {
 
 	if len(b) == 0 {
 		*s = []string{}
+
 		return nil
 	}
 
 	*s = strings.Split(string(b), "\n")
+
 	return nil
 }
 
@@ -160,10 +164,12 @@ type badConn struct {
 var _ net.Conn = &badConn{}
 
 func (cn *badConn) SetReadDeadline(t time.Time) error {
+
 	return nil
 }
 
 func (cn *badConn) SetWriteDeadline(t time.Time) error {
+
 	return nil
 }
 
@@ -172,8 +178,10 @@ func (cn *badConn) Read([]byte) (int, error) {
 		time.Sleep(cn.readDelay)
 	}
 	if cn.readErr != nil {
+
 		return 0, cn.readErr
 	}
+
 	return 0, badConnError("bad connection")
 }
 
@@ -182,8 +190,10 @@ func (cn *badConn) Write([]byte) (int, error) {
 		time.Sleep(cn.writeDelay)
 	}
 	if cn.writeErr != nil {
+
 		return 0, cn.writeErr
 	}
+
 	return 0, badConnError("bad connection")
 }
 
@@ -200,6 +210,7 @@ func performAsync(n int, cbs ...func(int)) *sync.WaitGroup {
 			}(cb, i)
 		}
 	}
+
 	return &wg
 }
 

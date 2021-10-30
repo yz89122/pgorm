@@ -27,6 +27,7 @@ func (q *DeleteQuery) String() string {
 	if err != nil {
 		panic(err)
 	}
+
 	return string(b)
 }
 
@@ -46,8 +47,9 @@ func (q *DeleteQuery) Query() *Query {
 }
 
 func (q *DeleteQuery) AppendTemplate(b []byte) ([]byte, error) {
-	cp := q.Clone().(*DeleteQuery)
+	cp := q.Clone().(*DeleteQuery) //nolint:forcetypeassert
 	cp.placeholder = true
+
 	return cp.AppendQuery(dummyFormatter{}, b)
 }
 

@@ -17,6 +17,7 @@ const (
 
 func ParseTime(b []byte) (time.Time, error) {
 	s := internal.BytesToString(b)
+
 	return ParseTimeString(s)
 }
 
@@ -26,6 +27,7 @@ func ParseTimeString(s string) (time.Time, error) {
 		if s[2] == ':' {
 			return time.ParseInLocation(timeFormat, s, time.UTC)
 		}
+
 		return time.ParseInLocation(dateFormat, s, time.UTC)
 	default:
 		if s[10] == 'T' {
@@ -40,6 +42,7 @@ func ParseTimeString(s string) (time.Time, error) {
 		if c := s[l-3]; c == '+' || c == '-' {
 			return time.Parse(timestamptzFormat3, s)
 		}
+
 		return time.ParseInLocation(timestampFormat, s, time.UTC)
 	}
 }
@@ -48,9 +51,12 @@ func AppendTime(b []byte, tm time.Time, flags int) []byte {
 	if flags == 1 {
 		b = append(b, '\'')
 	}
+
 	b = tm.UTC().AppendFormat(b, timestamptzFormat)
+
 	if flags == 1 {
 		b = append(b, '\'')
 	}
+
 	return b
 }

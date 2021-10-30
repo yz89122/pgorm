@@ -17,7 +17,7 @@ func RetryBackoff(retry int, minBackoff, maxBackoff time.Duration) time.Duration
 	}
 
 	d := minBackoff << uint(retry)
-	d = minBackoff + time.Duration(rand.Int63n(int64(d)))
+	d = minBackoff + time.Duration(rand.Int63n(int64(d))) //nolint:gosec
 
 	if d > maxBackoff || d < minBackoff {
 		d = maxBackoff

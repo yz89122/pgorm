@@ -2,7 +2,7 @@ package pgdebug
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	pg "github.com/yz89122/pgorm/v12"
 )
@@ -30,12 +30,12 @@ func (h *DebugHook) BeforeQuery(ctx context.Context, evt *pg.QueryEvent) (contex
 	}
 
 	if evt.Err != nil {
-		fmt.Printf("%s executing a query:\n%s\n", evt.Err, q)
+		log.Default().Printf("%s executing a query:\n%s\n", evt.Err, q)
 	} else if h.Verbose {
 		if h.EmptyLine {
-			fmt.Println()
+			log.Default().Println()
 		}
-		fmt.Println(string(q))
+		log.Default().Println(string(q))
 	}
 
 	return ctx, nil

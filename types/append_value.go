@@ -80,18 +80,23 @@ func Appender(typ reflect.Type) AppenderFunc {
 	}
 	fn := appender(typ, false)
 	_, _ = appendersMap.LoadOrStore(typ, fn)
+
 	return fn
 }
 
 func appender(typ reflect.Type, pgArray bool) AppenderFunc {
 	switch typ {
 	case timeType:
+
 		return appendTimeValue
 	case ipType:
+
 		return appendIPValue
 	case ipNetType:
+
 		return appendIPNetValue
 	case jsonRawMessageType:
+
 		return appendJSONRawMessageValue
 	}
 
@@ -105,6 +110,7 @@ func appender(typ reflect.Type, pgArray bool) AppenderFunc {
 	kind := typ.Kind()
 	switch kind {
 	case reflect.Ptr:
+
 		return ptrAppenderFunc(typ)
 	case reflect.Slice:
 		if typ.Elem().Kind() == reflect.Uint8 {
@@ -118,15 +124,18 @@ func appender(typ reflect.Type, pgArray bool) AppenderFunc {
 			return appendArrayBytesValue
 		}
 	}
+
 	return appenders[kind]
 }
 
 func ptrAppenderFunc(typ reflect.Type) AppenderFunc {
 	appender := Appender(typ.Elem())
+
 	return func(b []byte, v reflect.Value, flags int) []byte {
 		if v.IsNil() {
 			return AppendNull(b, flags)
 		}
+
 		return appender(b, v.Elem(), flags)
 	}
 }
@@ -136,6 +145,7 @@ func appendValue(b []byte, v reflect.Value, flags int) []byte {
 		return AppendNull(b, flags)
 	}
 	appender := Appender(v.Type())
+
 	return appender(b, v, flags)
 }
 
@@ -191,6 +201,7 @@ func appendStructValue(b []byte, v reflect.Value, flags int) []byte {
 	if v.Type() == timeType {
 		return appendTimeValue(b, v, flags)
 	}
+
 	return appendJSONValue(b, v, flags)
 }
 
@@ -213,17 +224,20 @@ func appendJSONValue(b []byte, v reflect.Value, flags int) []byte {
 }
 
 func appendTimeValue(b []byte, v reflect.Value, flags int) []byte {
-	tm := v.Interface().(time.Time)
+	tm := v.Interface().(time.Time) //nolint:forcetypeassert
+
 	return AppendTime(b, tm, flags)
 }
 
 func appendIPValue(b []byte, v reflect.Value, flags int) []byte {
-	ip := v.Interface().(net.IP)
+	ip := v.Interface().(net.IP) //nolint:forcetypeassert
+
 	return AppendString(b, ip.String(), flags)
 }
 
 func appendIPNetValue(b []byte, v reflect.Value, flags int) []byte {
-	ipnet := v.Interface().(net.IPNet)
+	ipnet := v.Interface().(net.IPNet) //nolint:forcetypeassert
+
 	return AppendString(b, ipnet.String(), flags)
 }
 
@@ -244,5 +258,6 @@ func appendDriverValuer(b []byte, v driver.Valuer, flags int) []byte {
 	if err != nil {
 		return AppendError(b, err)
 	}
+
 	return Append(b, value, flags)
 }

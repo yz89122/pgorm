@@ -70,6 +70,7 @@ func callHookSlice(
 			firstErr = err
 		}
 	}
+
 	return ctx, firstErr
 }
 
@@ -94,6 +95,7 @@ func callHookSlice2(
 			}
 		}
 	}
+
 	return firstErr
 }
 

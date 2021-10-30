@@ -9,7 +9,8 @@ import (
 )
 
 type InsertQuery struct {
-	q               *Query
+	q *Query
+
 	returningFields []*Field
 	placeholder     bool
 }
@@ -27,6 +28,7 @@ func (q *InsertQuery) String() string {
 	if err != nil {
 		panic(err)
 	}
+
 	return string(b)
 }
 
@@ -48,8 +50,9 @@ func (q *InsertQuery) Query() *Query {
 var _ TemplateAppender = (*InsertQuery)(nil)
 
 func (q *InsertQuery) AppendTemplate(b []byte) ([]byte, error) {
-	cp := q.Clone().(*InsertQuery)
+	cp := q.Clone().(*InsertQuery) //nolint:forcetypeassert
 	cp.placeholder = true
+
 	return cp.AppendQuery(dummyFormatter{}, b)
 }
 
@@ -174,6 +177,7 @@ func (q *InsertQuery) appendColumnsValues(fmter QueryFormatter, b []byte) (_ []b
 	if m, ok := q.q.tableModel.(*sliceTableModel); ok {
 		if m.sliceLen == 0 {
 			err = fmt.Errorf("pg: can't bulk-insert empty slice %s", value.Type())
+
 			return nil, err
 		}
 		b, err = q.appendSliceValues(fmter, b, fields, value)
@@ -241,6 +245,7 @@ func (q *InsertQuery) appendValues(
 				return nil, err
 			}
 			q.addReturningField(f)
+
 			continue
 		}
 
@@ -324,6 +329,7 @@ func (q *InsertQuery) appendSetExcluded(b []byte, fields []*Field) []byte {
 		b = append(b, " = EXCLUDED."...)
 		b = append(b, f.Column...)
 	}
+
 	return b
 }
 
@@ -335,11 +341,13 @@ func (q *InsertQuery) appendColumns(b []byte, fields []*Field) []byte {
 		}
 		b = types.AppendIdent(b, v.column, 1)
 	}
+
 	return b
 }
 
 func appendReturningFields(b []byte, fields []*Field) []byte {
 	b = append(b, " RETURNING "...)
 	b = appendColumns(b, "", fields)
+
 	return b
 }

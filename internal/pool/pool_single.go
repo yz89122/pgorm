@@ -29,6 +29,7 @@ func (p *SingleConnPool) Get(ctx context.Context) (*Conn, error) {
 	if p.stickyErr != nil {
 		return nil, p.stickyErr
 	}
+
 	return p.cn, nil
 }
 
@@ -42,6 +43,7 @@ func (p *SingleConnPool) Remove(ctx context.Context, cn *Conn, reason error) {
 func (p *SingleConnPool) Close() error {
 	p.cn = nil
 	p.stickyErr = ErrClosed
+
 	return nil
 }
 

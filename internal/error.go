@@ -38,8 +38,10 @@ func (err PGError) Field(k byte) string {
 func (err PGError) IntegrityViolation() bool {
 	switch err.Field('C') {
 	case "23000", "23001", "23502", "23503", "23505", "23514", "23P01":
+
 		return true
 	default:
+
 		return false
 	}
 }
@@ -52,10 +54,13 @@ func (err PGError) Error() string {
 func AssertOneRow(l int) error {
 	switch {
 	case l == 0:
+
 		return ErrNoRows
 	case l > 1:
+
 		return ErrMultiRows
 	default:
+
 		return nil
 	}
 }

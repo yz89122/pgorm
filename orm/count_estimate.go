@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/yz89122/pgorm/v12/internal"
@@ -10,9 +11,9 @@ import (
 const placeholder = `'_go_pg_placeholder'`
 
 // https://wiki.postgresql.org/wiki/Count_estimate
-//nolint
 var pgCountEstimateFunc = fmt.Sprintf(`
 CREATE OR REPLACE FUNCTION _go_pg_count_estimate_v2(query text, threshold int)
+
 RETURNS int AS $$
 DECLARE
   rec record;
@@ -25,6 +26,7 @@ BEGIN
 
   -- Return the estimation if there are too many rows.
   IF nrows > threshold THEN
+
     RETURN nrows;
   END IF;
 
@@ -35,6 +37,7 @@ BEGIN
   IF nrows IS NULL THEN
     nrows := 0;
   END IF;
+
 
   RETURN nrows;
 END;
@@ -66,18 +69,20 @@ func (q *Query) CountEstimate(threshold int) (int, error) {
 			string(query), threshold,
 		)
 		if err != nil {
-			if pgerr, ok := err.(internal.PGError); ok && pgerr.Field('C') == "42883" {
+			var pgErr internal.PGError
+			if ok := errors.As(err, &pgErr); ok && pgErr.Field('C') == "42883" {
 				// undefined_function
 				err = q.createCountEstimateFunc()
 				if err != nil {
-					pgerr, ok := err.(internal.PGError)
-					if !ok || !pgerr.IntegrityViolation() {
+					if ok := errors.As(err, &pgErr); !ok || !pgErr.IntegrityViolation() {
 						return 0, err
 					}
 				}
+
 				continue
 			}
 		}
+
 		return count, err
 	}
 
@@ -86,5 +91,6 @@ func (q *Query) CountEstimate(threshold int) (int, error) {
 
 func (q *Query) createCountEstimateFunc() error {
 	_, err := q.db.ExecContext(q.ctx, pgCountEstimateFunc)
+
 	return err
 }

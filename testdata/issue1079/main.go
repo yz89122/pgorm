@@ -11,13 +11,15 @@ type MyType struct {
 
 func createSchema(db *pg.DB) error {
 	for _, model := range []interface{}{(*MyType)(nil)} {
-		err := db.CreateTable(model, &orm.CreateTableOptions{
+		err := db.Model(model).CreateTable(&orm.CreateTableOptions{
 			Temp: true,
 		})
 		if err != nil {
+
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -35,7 +37,7 @@ func main() {
 	thing := &MyType{
 		MyInfo: [3]bool{true, false, true},
 	}
-	err = db.Insert(thing)
+	_, err = db.Model(thing).Insert()
 	if err != nil {
 		panic(err)
 	}

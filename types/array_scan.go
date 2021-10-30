@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -31,6 +32,7 @@ func ArrayScanner(typ reflect.Type) ScannerFunc {
 	case reflect.Slice, reflect.Array:
 		// ok:
 	default:
+
 		return nil
 	}
 
@@ -39,17 +41,22 @@ func ArrayScanner(typ reflect.Type) ScannerFunc {
 	if kind == reflect.Slice {
 		switch elemType {
 		case stringType:
+
 			return scanStringArrayValue
 		case intType:
+
 			return scanIntArrayValue
 		case int64Type:
+
 			return scanInt64ArrayValue
 		case float64Type:
+
 			return scanFloat64ArrayValue
 		}
 	}
 
 	scanElem := scanner(elemType, true)
+
 	return func(v reflect.Value, rd Reader, n int) error {
 		v = reflect.Indirect(v)
 		if !v.CanSet() {
@@ -62,6 +69,7 @@ func ArrayScanner(typ reflect.Type) ScannerFunc {
 			if kind != reflect.Slice || !v.IsNil() {
 				v.Set(reflect.Zero(v.Type()))
 			}
+
 			return nil
 		}
 
@@ -80,9 +88,10 @@ func ArrayScanner(typ reflect.Type) ScannerFunc {
 		for {
 			elem, err := p.NextElem()
 			if err != nil {
-				if err == errEndOfArray {
+				if errors.Is(err, errEndOfArray) {
 					break
 				}
+
 				return err
 			}
 
@@ -122,6 +131,7 @@ func scanStringArrayValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.Set(reflect.ValueOf(strings))
+
 	return nil
 }
 
@@ -135,9 +145,10 @@ func scanStringArray(rd Reader, n int) ([]string, error) {
 	for {
 		elem, err := p.NextElem()
 		if err != nil {
-			if err == errEndOfArray {
+			if errors.Is(err, errEndOfArray) {
 				break
 			}
+
 			return nil, err
 		}
 
@@ -159,6 +170,7 @@ func scanIntArrayValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.Set(reflect.ValueOf(slice))
+
 	return nil
 }
 
@@ -172,14 +184,16 @@ func decodeSliceInt(rd Reader, n int) ([]int, error) {
 	for {
 		elem, err := p.NextElem()
 		if err != nil {
-			if err == errEndOfArray {
+			if errors.Is(err, errEndOfArray) {
 				break
 			}
+
 			return nil, err
 		}
 
 		if elem == nil {
 			slice = append(slice, 0)
+
 			continue
 		}
 
@@ -206,6 +220,7 @@ func scanInt64ArrayValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.Set(reflect.ValueOf(slice))
+
 	return nil
 }
 
@@ -219,14 +234,16 @@ func scanInt64Array(rd Reader, n int) ([]int64, error) {
 	for {
 		elem, err := p.NextElem()
 		if err != nil {
-			if err == errEndOfArray {
+			if errors.Is(err, errEndOfArray) {
 				break
 			}
+
 			return nil, err
 		}
 
 		if elem == nil {
 			slice = append(slice, 0)
+
 			continue
 		}
 
@@ -253,6 +270,7 @@ func scanFloat64ArrayValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.Set(reflect.ValueOf(slice))
+
 	return nil
 }
 
@@ -266,14 +284,16 @@ func scanFloat64Array(rd Reader, n int) ([]float64, error) {
 	for {
 		elem, err := p.NextElem()
 		if err != nil {
-			if err == errEndOfArray {
+			if errors.Is(err, errEndOfArray) {
 				break
 			}
+
 			return nil, err
 		}
 
 		if elem == nil {
 			slice = append(slice, 0)
+
 			continue
 		}
 
@@ -293,7 +313,7 @@ func scanArrayValueScannerValue(v reflect.Value, rd Reader, n int) error {
 		return nil
 	}
 
-	scanner := v.Addr().Interface().(ArrayValueScanner)
+	scanner := v.Addr().Interface().(ArrayValueScanner) //nolint:forcetypeassert
 
 	err := scanner.BeforeScanArrayValue(rd, n)
 	if err != nil {
@@ -305,9 +325,10 @@ func scanArrayValueScannerValue(v reflect.Value, rd Reader, n int) error {
 	for {
 		elem, err := p.NextElem()
 		if err != nil {
-			if err == errEndOfArray {
+			if errors.Is(err, errEndOfArray) {
 				break
 			}
+
 			return err
 		}
 

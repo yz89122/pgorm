@@ -10,12 +10,14 @@ const defaultBufSize = 65 << 10 // 65kb
 
 var wbPool = sync.Pool{
 	New: func() interface{} {
+
 		return NewWriteBuffer()
 	},
 }
 
 func GetWriteBuffer() *WriteBuffer {
-	wb := wbPool.Get().(*WriteBuffer)
+	wb := wbPool.Get().(*WriteBuffer) //nolint:forcetypeassert
+
 	return wb
 }
 
@@ -79,6 +81,7 @@ func (buf *WriteBuffer) FinishNullParam() {
 
 func (buf *WriteBuffer) Write(b []byte) (int, error) {
 	buf.Bytes = append(buf.Bytes, b...)
+
 	return len(b), nil
 }
 
@@ -104,11 +107,13 @@ func (buf *WriteBuffer) WriteBytes(b []byte) {
 
 func (buf *WriteBuffer) WriteByte(c byte) error {
 	buf.Bytes = append(buf.Bytes, c)
+
 	return nil
 }
 
 func (buf *WriteBuffer) ReadFrom(r io.Reader) (int64, error) {
 	n, err := r.Read(buf.Bytes[len(buf.Bytes):cap(buf.Bytes)])
 	buf.Bytes = buf.Bytes[:len(buf.Bytes)+n]
+
 	return int64(n), err
 }

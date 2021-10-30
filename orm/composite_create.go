@@ -30,6 +30,7 @@ func (q *CreateCompositeQuery) String() string {
 	if err != nil {
 		panic(err)
 	}
+
 	return string(b)
 }
 

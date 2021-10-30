@@ -18,6 +18,7 @@ loop:
 		case '*':
 			if !quoted {
 				b = append(b, '*')
+
 				continue loop
 			}
 		case '.':
@@ -26,6 +27,7 @@ loop:
 				quoted = false
 			}
 			b = append(b, '.')
+
 			continue loop
 		}
 
@@ -42,5 +44,6 @@ loop:
 	if quoted && hasFlag(flags, quoteFlag) {
 		b = append(b, '"')
 	}
+
 	return b
 }

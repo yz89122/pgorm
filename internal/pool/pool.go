@@ -20,6 +20,7 @@ var timers = sync.Pool{
 	New: func() interface{} {
 		t := time.NewTimer(time.Hour)
 		t.Stop()
+
 		return t
 	},
 }
@@ -135,6 +136,7 @@ func (p *ConnPool) addIdleConn() error {
 	p.conns = append(p.conns, cn)
 	p.idleConns = append(p.idleConns, cn)
 	p.connsMu.Unlock()
+
 	return nil
 }
 
@@ -161,6 +163,7 @@ func (p *ConnPool) newConn(c context.Context, pooled bool) (*Conn, error) {
 	}
 
 	p.connsMu.Unlock()
+
 	return cn, nil
 }
 
@@ -179,11 +182,13 @@ func (p *ConnPool) dialConn(c context.Context, pooled bool) (*Conn, error) {
 		if atomic.AddUint32(&p.dialErrorsNum, 1) == uint32(p.opt.PoolSize) {
 			go p.tryDial()
 		}
+
 		return nil, err
 	}
 
 	cn := NewConn(netConn)
 	cn.pooled = pooled
+
 	return cn, nil
 }
 
@@ -197,11 +202,13 @@ func (p *ConnPool) tryDial() {
 		if err != nil {
 			p.setLastDialError(err)
 			time.Sleep(time.Second)
+
 			continue
 		}
 
 		atomic.StoreUint32(&p.dialErrorsNum, 0)
 		_ = conn.Close()
+
 		return
 	}
 }
@@ -216,6 +223,7 @@ func (p *ConnPool) getLastDialError() error {
 	p.lastDialErrorMu.RLock()
 	err := p.lastDialError
 	p.lastDialErrorMu.RUnlock()
+
 	return err
 }
 
@@ -225,8 +233,7 @@ func (p *ConnPool) Get(ctx context.Context) (*Conn, error) {
 		return nil, ErrClosed
 	}
 
-	err := p.waitTurn(ctx)
-	if err != nil {
+	if err := p.waitTurn(ctx); err != nil {
 		return nil, err
 	}
 
@@ -241,10 +248,12 @@ func (p *ConnPool) Get(ctx context.Context) (*Conn, error) {
 
 		if p.isStaleConn(cn) {
 			_ = p.CloseConn(cn)
+
 			continue
 		}
 
 		atomic.AddUint32(&p.stats.Hits, 1)
+
 		return cn, nil
 	}
 
@@ -253,6 +262,7 @@ func (p *ConnPool) Get(ctx context.Context) (*Conn, error) {
 	newcn, err := p.newConn(ctx, true)
 	if err != nil {
 		p.freeTurn()
+
 		return nil, err
 	}
 
@@ -266,17 +276,19 @@ func (p *ConnPool) getTurn() {
 func (p *ConnPool) waitTurn(c context.Context) error {
 	select {
 	case <-c.Done():
+
 		return c.Err()
 	default:
 	}
 
 	select {
 	case p.queue <- struct{}{}:
+
 		return nil
 	default:
 	}
 
-	timer := timers.Get().(*time.Timer)
+	timer := timers.Get().(*time.Timer) //nolint:forcetypeassert
 	timer.Reset(p.opt.PoolTimeout)
 
 	select {
@@ -285,16 +297,19 @@ func (p *ConnPool) waitTurn(c context.Context) error {
 			<-timer.C
 		}
 		timers.Put(timer)
+
 		return c.Err()
 	case p.queue <- struct{}{}:
 		if !timer.Stop() {
 			<-timer.C
 		}
 		timers.Put(timer)
+
 		return nil
 	case <-timer.C:
 		timers.Put(timer)
 		atomic.AddUint32(&p.stats.Timeouts, 1)
+
 		return ErrPoolTimeout
 	}
 }
@@ -313,12 +328,14 @@ func (p *ConnPool) popIdle() *Conn {
 	p.idleConns = p.idleConns[:idx]
 	p.idleConnsLen--
 	p.checkMinIdleConns()
+
 	return cn
 }
 
 func (p *ConnPool) Put(ctx context.Context, cn *Conn) {
 	if !cn.pooled {
 		p.Remove(ctx, cn, nil)
+
 		return
 	}
 
@@ -337,6 +354,7 @@ func (p *ConnPool) Remove(ctx context.Context, cn *Conn, reason error) {
 
 func (p *ConnPool) CloseConn(cn *Conn) error {
 	p.removeConnWithLock(cn)
+
 	return p.closeConn(cn)
 }
 
@@ -352,8 +370,10 @@ func (p *ConnPool) removeConn(cn *Conn) {
 			p.conns = append(p.conns[:i], p.conns[i+1:]...)
 			if cn.pooled {
 				p.poolSize--
+
 				p.checkMinIdleConns()
 			}
+
 			return
 		}
 	}
@@ -363,6 +383,7 @@ func (p *ConnPool) closeConn(cn *Conn) error {
 	if p.opt.OnClose != nil {
 		_ = p.opt.OnClose(cn)
 	}
+
 	return cn.Close()
 }
 
@@ -371,6 +392,7 @@ func (p *ConnPool) Len() int {
 	p.connsMu.Lock()
 	n := len(p.conns)
 	p.connsMu.Unlock()
+
 	return n
 }
 
@@ -379,11 +401,13 @@ func (p *ConnPool) IdleLen() int {
 	p.connsMu.Lock()
 	n := p.idleConnsLen
 	p.connsMu.Unlock()
+
 	return n
 }
 
 func (p *ConnPool) Stats() *Stats {
 	idleLen := p.IdleLen()
+
 	return &Stats{
 		Hits:     atomic.LoadUint32(&p.stats.Hits),
 		Misses:   atomic.LoadUint32(&p.stats.Misses),
@@ -410,6 +434,7 @@ func (p *ConnPool) Filter(fn func(*Conn) bool) error {
 		}
 	}
 	p.connsMu.Unlock()
+
 	return firstErr
 }
 
@@ -445,6 +470,7 @@ func (p *ConnPool) reaper(frequency time.Duration) {
 		n, err := p.ReapStaleConns()
 		if err != nil {
 			internal.Logger.Printf(context.TODO(), "ReapStaleConns failed: %s", err)
+
 			continue
 		}
 		atomic.AddUint32(&p.stats.StaleConns, uint32(n))
@@ -469,6 +495,7 @@ func (p *ConnPool) ReapStaleConns() (int, error) {
 			break
 		}
 	}
+
 	return n, nil
 }
 

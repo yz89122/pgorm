@@ -117,6 +117,7 @@ func (opt *Options) init() {
 				Timeout:   opt.DialTimeout,
 				KeepAlive: 5 * time.Minute,
 			}
+
 			return netDialer.DialContext(ctx, network, addr)
 		}
 	}
@@ -163,10 +164,10 @@ func (opt *Options) init() {
 }
 
 func env(key, defValue string) string {
-	envValue := os.Getenv(key)
-	if envValue != "" {
+	if envValue := os.Getenv(key); envValue != "" {
 		return envValue
 	}
+
 	return defValue
 }
 
@@ -219,12 +220,13 @@ func ParseURL(sURL string) (*Options, error) {
 	if sslMode, ok := query["sslmode"]; ok && len(sslMode) > 0 {
 		switch sslMode[0] {
 		case "verify-ca", "verify-full":
-			options.TLSConfig = &tls.Config{}
+			options.TLSConfig = &tls.Config{} //nolint:gosec
 		case "allow", "prefer", "require":
 			options.TLSConfig = &tls.Config{InsecureSkipVerify: true} //nolint
 		case "disable":
 			options.TLSConfig = nil
 		default:
+
 			return nil, fmt.Errorf("pg: sslmode '%v' is not supported", sslMode[0])
 		}
 	} else {

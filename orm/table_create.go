@@ -41,6 +41,7 @@ func (q *CreateTableQuery) String() string {
 	if err != nil {
 		panic(err)
 	}
+
 	return string(b)
 }
 
@@ -139,23 +140,29 @@ func (q *CreateTableQuery) appendSQLType(b []byte, field *Field) []byte {
 		b = append(b, "varchar("...)
 		b = strconv.AppendInt(b, int64(q.opt.Varchar), 10)
 		b = append(b, ")"...)
+
 		return b
 	}
 	if field.hasFlag(PrimaryKeyFlag) {
 		return append(b, pkSQLType(field.SQLType)...)
 	}
+
 	return append(b, field.SQLType...)
 }
 
 func pkSQLType(s string) string {
 	switch s {
 	case pgTypeSmallint:
+
 		return pgTypeSmallserial
 	case pgTypeInteger:
+
 		return pgTypeSerial
 	case pgTypeBigint:
+
 		return pgTypeBigserial
 	}
+
 	return s
 }
 
@@ -167,6 +174,7 @@ func appendPKConstraint(b []byte, pks []*Field) []byte {
 	b = append(b, ", PRIMARY KEY ("...)
 	b = appendColumns(b, "", pks)
 	b = append(b, ")"...)
+
 	return b
 }
 
@@ -188,6 +196,7 @@ func appendUnique(b []byte, fields []*Field) []byte {
 	b = append(b, ", UNIQUE ("...)
 	b = appendColumns(b, "", fields)
 	b = append(b, ")"...)
+
 	return b
 }
 
@@ -222,6 +231,7 @@ func (q *CreateTableQuery) appendFKConstraint(fmter QueryFormatter, b []byte, re
 func (q *CreateTableQuery) appendTablespace(b []byte, tableSpace types.Safe) []byte {
 	b = append(b, " TABLESPACE "...)
 	b = append(b, tableSpace...)
+
 	return b
 }
 
@@ -230,9 +240,11 @@ func onDelete(fks []*Field) string {
 	for _, f := range fks {
 		if f.OnDelete != "" {
 			onDelete = f.OnDelete
+
 			break
 		}
 	}
+
 	return onDelete
 }
 
@@ -241,8 +253,10 @@ func onUpdate(fks []*Field) string {
 	for _, f := range fks {
 		if f.OnUpdate != "" {
 			onUpdate = f.OnUpdate
+
 			break
 		}
 	}
+
 	return onUpdate
 }

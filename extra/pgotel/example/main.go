@@ -7,8 +7,8 @@ import (
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
-	"github.com/yz89122/pgorm/extra/pgotel/v12"
 	pg "github.com/yz89122/pgorm/v12"
+	"github.com/yz89122/pgorm/v12/extra/pgotel"
 )
 
 var tracer = otel.Tracer("app_or_package_name")

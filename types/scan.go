@@ -16,24 +16,31 @@ func Scan(v interface{}, rd Reader, n int) error {
 	switch v := v.(type) {
 	case *string:
 		*v, err = ScanString(rd, n)
+
 		return err
 	case *[]byte:
 		*v, err = ScanBytes(rd, n)
+
 		return err
 	case *int:
 		*v, err = ScanInt(rd, n)
+
 		return err
 	case *int64:
 		*v, err = ScanInt64(rd, n)
+
 		return err
 	case *float32:
 		*v, err = ScanFloat32(rd, n)
+
 		return err
 	case *float64:
 		*v, err = ScanFloat64(rd, n)
+
 		return err
 	case *time.Time:
 		*v, err = ScanTime(rd, n)
+
 		return err
 	}
 
@@ -89,6 +96,7 @@ func ScanBytes(rd Reader, n int) ([]byte, error) {
 	if err := ReadBytes(rd, b); err != nil {
 		return nil, err
 	}
+
 	return b, nil
 }
 
@@ -175,6 +183,7 @@ func ScanUint64(rd Reader, n int) (uint64, error) {
 		if err != nil {
 			return 0, err
 		}
+
 		return uint64(num), nil
 	}
 
@@ -240,5 +249,6 @@ func ScanBool(rd Reader, n int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	return len(tmp) == 1 && (tmp[0] == 't' || tmp[0] == '1'), nil
 }

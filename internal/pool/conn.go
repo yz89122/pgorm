@@ -30,11 +30,13 @@ func NewConn(netConn net.Conn) *Conn {
 	}
 	cn.SetNetConn(netConn)
 	cn.SetUsedAt(time.Now())
+
 	return cn
 }
 
 func (cn *Conn) UsedAt() time.Time {
 	unix := atomic.LoadUint32(&cn.usedAt)
+
 	return time.Unix(int64(unix), 0)
 }
 
@@ -67,6 +69,7 @@ func (cn *Conn) NetConn() net.Conn {
 
 func (cn *Conn) NextID() string {
 	cn.lastID++
+
 	return strconv.FormatInt(cn.lastID, 10)
 }
 
@@ -87,11 +90,7 @@ func (cn *Conn) WithReader(
 
 	rd.bytesRead = 0
 
-	if err := fn(rd); err != nil {
-		return err
-	}
-
-	return nil
+	return fn(rd)
 }
 
 func (cn *Conn) WithWriter(
@@ -119,9 +118,11 @@ func (cn *Conn) writeBuffer(
 	if err := cn.netConn.SetWriteDeadline(cn.deadline(ctx, timeout)); err != nil {
 		return err
 	}
+
 	if _, err := cn.netConn.Write(wb.Bytes); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -143,9 +144,11 @@ func (cn *Conn) deadline(ctx context.Context, timeout time.Duration) time.Time {
 			if timeout == 0 {
 				return deadline
 			}
+
 			if deadline.Before(tm) {
 				return deadline
 			}
+
 			return tm
 		}
 	}

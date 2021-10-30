@@ -31,6 +31,7 @@ func (q *UpdateQuery) String() string {
 	if err != nil {
 		panic(err)
 	}
+
 	return string(b)
 }
 
@@ -51,8 +52,9 @@ func (q *UpdateQuery) Query() *Query {
 }
 
 func (q *UpdateQuery) AppendTemplate(b []byte) ([]byte, error) {
-	cp := q.Clone().(*UpdateQuery)
+	cp := q.Clone().(*UpdateQuery) //nolint:forcetypeassert
 	cp.placeholder = true
+
 	return cp.AppendQuery(dummyFormatter{}, b)
 }
 
@@ -131,6 +133,7 @@ func (q *UpdateQuery) mustAppendWhere(
 	}
 
 	b = appendWhereColumnAndColumn(b, table.Alias, table.PKs)
+
 	return b, nil
 }
 
@@ -217,6 +220,7 @@ func (q *UpdateQuery) appendSetStruct(fmter QueryFormatter, b []byte, strct refl
 
 		if q.placeholder {
 			b = append(b, '?')
+
 			continue
 		}
 
@@ -348,6 +352,7 @@ func (q *UpdateQuery) appendValues(
 			if err != nil {
 				return nil, err
 			}
+
 			continue
 		}
 
@@ -360,6 +365,7 @@ func (q *UpdateQuery) appendValues(
 		b = append(b, "::"...)
 		b = append(b, f.SQLType...)
 	}
+
 	return b, nil
 }
 
@@ -374,5 +380,6 @@ func appendWhereColumnAndColumn(b []byte, alias types.Safe, fields []*Field) []b
 		b = append(b, " = _data."...)
 		b = append(b, f.Column...)
 	}
+
 	return b
 }

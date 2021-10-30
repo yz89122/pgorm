@@ -33,8 +33,10 @@ func prepareStmt(db *baseDB, q string) (*Stmt, error) {
 	err := stmt.prepare(context.TODO(), q)
 	if err != nil {
 		_ = stmt.Close()
+
 		return nil, err
 	}
+
 	return stmt, nil
 }
 
@@ -55,12 +57,14 @@ func (stmt *Stmt) prepare(ctx context.Context, q string) error {
 		lastErr = stmt.withConn(ctx, func(ctx context.Context, cn *pool.Conn) error {
 			var err error
 			stmt.name, stmt.columns, err = stmt.db.prepare(ctx, cn, q)
+
 			return err
 		})
 		if !stmt.db.shouldRetry(lastErr) {
 			break
 		}
 	}
+
 	return lastErr
 }
 
@@ -69,9 +73,10 @@ func (stmt *Stmt) withConn(c context.Context, fn func(context.Context, *pool.Con
 		return stmt.stickyErr
 	}
 	err := stmt.db.withConn(c, fn)
-	if err == pool.ErrClosed {
+	if errors.Is(err, pool.ErrClosed) {
 		return errStmtClosed
 	}
+
 	return err
 }
 
@@ -103,6 +108,7 @@ func (stmt *Stmt) exec(ctx context.Context, params ...interface{}) (Result, erro
 
 		lastErr = stmt.withConn(ctx, func(c context.Context, cn *pool.Conn) error {
 			res, err = stmt.extQuery(ctx, cn, stmt.name, params...)
+
 			return err
 		})
 		if !stmt.db.shouldRetry(lastErr) {
@@ -113,6 +119,7 @@ func (stmt *Stmt) exec(ctx context.Context, params ...interface{}) (Result, erro
 	if err := stmt.db.afterQuery(ctx, evt, res, lastErr); err != nil {
 		return nil, err
 	}
+
 	return res, lastErr
 }
 
@@ -137,6 +144,7 @@ func (stmt *Stmt) execOne(c context.Context, params ...interface{}) (Result, err
 	if err := internal.AssertOneRow(res.RowsAffected()); err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
@@ -168,6 +176,7 @@ func (stmt *Stmt) query(ctx context.Context, model interface{}, params ...interf
 
 		lastErr = stmt.withConn(ctx, func(c context.Context, cn *pool.Conn) error {
 			res, err = stmt.extQueryData(ctx, cn, stmt.name, model, stmt.columns, params...)
+
 			return err
 		})
 		if !stmt.db.shouldRetry(lastErr) {
@@ -178,6 +187,7 @@ func (stmt *Stmt) query(ctx context.Context, model interface{}, params ...interf
 	if err := stmt.db.afterQuery(ctx, evt, res, lastErr); err != nil {
 		return nil, err
 	}
+
 	return res, lastErr
 }
 
@@ -207,6 +217,7 @@ func (stmt *Stmt) queryOne(c context.Context, model interface{}, params ...inter
 	if err := internal.AssertOneRow(res.RowsAffected()); err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
@@ -239,6 +250,7 @@ func (stmt *Stmt) extQuery(
 	var res Result
 	err = cn.WithReader(c, stmt.db.opt.ReadTimeout, func(rd *pool.ReaderContext) error {
 		res, err = readExtQuery(rd)
+
 		return err
 	})
 	if err != nil {
@@ -266,6 +278,7 @@ func (stmt *Stmt) extQueryData(
 	var res *result
 	err = cn.WithReader(c, stmt.db.opt.ReadTimeout, func(rd *pool.ReaderContext) error {
 		res, err = readExtQueryData(c, rd, model, columns)
+
 		return err
 	})
 	if err != nil {

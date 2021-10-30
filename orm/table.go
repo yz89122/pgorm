@@ -165,6 +165,7 @@ func (t *Table) hasFlag(flag uint16) bool {
 	if t == nil {
 		return false
 	}
+
 	return t.flags&flag != 0
 }
 
@@ -172,6 +173,7 @@ func (t *Table) checkPKs() error {
 	if len(t.PKs) == 0 {
 		return fmt.Errorf("pg: %s does not have primary keys", t)
 	}
+
 	return nil
 }
 
@@ -179,6 +181,7 @@ func (t *Table) mustSoftDelete() error {
 	if t.SoftDeleteField == nil {
 		return fmt.Errorf("pg: %s does not support soft deletes", t)
 	}
+
 	return nil
 }
 
@@ -208,6 +211,7 @@ func removeField(fields []*Field, field *Field) []*Field {
 			fields = append(fields[:i], fields[i+1:]...)
 		}
 	}
+
 	return fields
 }
 
@@ -215,11 +219,13 @@ func (t *Table) getField(name string) *Field {
 	t.fieldsMapMu.RLock()
 	field := t.FieldsMap[name]
 	t.fieldsMapMu.RUnlock()
+
 	return field
 }
 
 func (t *Table) HasField(name string) bool {
 	_, ok := t.FieldsMap[name]
+
 	return ok
 }
 
@@ -228,6 +234,7 @@ func (t *Table) GetField(name string) (*Field, error) {
 	if !ok {
 		return nil, fmt.Errorf("pg: %s does not have column=%s", t, name)
 	}
+
 	return field, nil
 }
 
@@ -235,12 +242,14 @@ func (t *Table) AppendParam(b []byte, strct reflect.Value, name string) ([]byte,
 	field, ok := t.FieldsMap[name]
 	if ok {
 		b = field.AppendValue(b, strct, 1)
+
 		return b, true
 	}
 
 	method, ok := t.Methods[name]
 	if ok {
 		b = method.AppendValue(b, strct.Addr(), 1)
+
 		return b, true
 	}
 
@@ -270,7 +279,7 @@ func (t *Table) addFields(typ reflect.Type, baseIndex []int) {
 			if fieldType.Kind() != reflect.Struct {
 				continue
 			}
-			t.addFields(fieldType, append(index, f.Index...))
+			t.addFields(fieldType, append(index, f.Index...)) //nolint:makezero
 
 			pgTag := tagparser.Parse(f.Tag.Get("pg"))
 			if _, inherit := pgTag.Options["inherit"]; inherit {
@@ -299,6 +308,7 @@ func (t *Table) newField(f reflect.StructField, index []int) *Field {
 	switch f.Name {
 	case "tableName":
 		if len(index) > 0 {
+
 			return nil
 		}
 
@@ -358,6 +368,7 @@ func (t *Table) newField(f reflect.StructField, index []int) *Field {
 	}
 
 	if f.PkgPath != "" {
+
 		return nil
 	}
 
@@ -384,6 +395,7 @@ func (t *Table) newField(f reflect.StructField, index []int) *Field {
 	index = append(index, f.Index...)
 	if field := t.getField(sqlName); field != nil {
 		if indexEqual(field.Index, index) {
+
 			return field
 		}
 		t.RemoveField(field)
@@ -499,6 +511,7 @@ func (t *Table) newField(f reflect.StructField, index []int) *Field {
 	if skip {
 		t.skippedFields = append(t.skippedFields, field)
 		t.FieldsMap[field.SQLName] = field
+
 		return nil
 	}
 
@@ -579,22 +592,29 @@ func (t *Table) tryRelation(field *Field) bool {
 
 	switch field.Type.Kind() {
 	case reflect.Slice:
+
 		return t.tryRelationSlice(field, pgTag)
 	case reflect.Struct:
+
 		return t.tryRelationStruct(field, pgTag)
 	}
+
 	return false
 }
 
 func (t *Table) tryRelationType(field *Field, rel string, pgTag *tagparser.Tag) bool {
 	switch rel {
 	case "has-one":
+
 		return t.mustHasOneRelation(field, pgTag)
 	case "belongs-to":
+
 		return t.mustBelongsToRelation(field, pgTag)
 	case "has-many":
+
 		return t.mustHasManyRelation(field, pgTag)
 	case "many2many":
+
 		return t.mustM2MRelation(field, pgTag)
 	default:
 		panic(fmt.Errorf("pg: unknown relation=%s on field=%s", rel, field.GoName))
@@ -644,6 +664,7 @@ func (t *Table) mustHasOneRelation(field *Field, pgTag *tagparser.Tag) bool {
 			BaseFKs:   []*Field{fk},
 			JoinFKs:   joinPKs,
 		})
+
 		return true
 	}
 
@@ -656,11 +677,13 @@ func (t *Table) mustHasOneRelation(field *Field, pgTag *tagparser.Tag) bool {
 		fkName := fkPrefix + joinPK.SQLName
 		if fk := t.getField(fkName); fk != nil {
 			fks = append(fks, fk)
+
 			continue
 		}
 
 		if fk := t.getField(joinPK.SQLName); fk != nil {
 			fks = append(fks, fk)
+
 			continue
 		}
 
@@ -678,6 +701,7 @@ func (t *Table) mustHasOneRelation(field *Field, pgTag *tagparser.Tag) bool {
 		BaseFKs:   fks,
 		JoinFKs:   joinPKs,
 	})
+
 	return true
 }
 
@@ -705,6 +729,7 @@ func (t *Table) mustBelongsToRelation(field *Field, pgTag *tagparser.Tag) bool {
 			BaseFKs:   t.PKs,
 			JoinFKs:   []*Field{fk},
 		})
+
 		return true
 	}
 
@@ -717,11 +742,13 @@ func (t *Table) mustBelongsToRelation(field *Field, pgTag *tagparser.Tag) bool {
 		fkName := fkPrefix + pk.SQLName
 		if fk := joinTable.getField(fkName); fk != nil {
 			fks = append(fks, fk)
+
 			continue
 		}
 
 		if fk := joinTable.getField(pk.SQLName); fk != nil {
 			fks = append(fks, fk)
+
 			continue
 		}
 
@@ -739,6 +766,7 @@ func (t *Table) mustBelongsToRelation(field *Field, pgTag *tagparser.Tag) bool {
 		BaseFKs:   t.PKs,
 		JoinFKs:   fks,
 	})
+
 	return true
 }
 
@@ -774,6 +802,7 @@ func (t *Table) mustHasManyRelation(field *Field, pgTag *tagparser.Tag) bool {
 			BaseFKs:   t.PKs,
 			JoinFKs:   []*Field{fk},
 		})
+
 		return true
 	}
 
@@ -786,11 +815,13 @@ func (t *Table) mustHasManyRelation(field *Field, pgTag *tagparser.Tag) bool {
 		fkName := fkPrefix + pk.SQLName
 		if fk := joinTable.getField(fkName); fk != nil {
 			fks = append(fks, fk)
+
 			continue
 		}
 
 		if fk := joinTable.getField(pk.SQLName); fk != nil {
 			fks = append(fks, fk)
+
 			continue
 		}
 
@@ -822,6 +853,7 @@ func (t *Table) mustHasManyRelation(field *Field, pgTag *tagparser.Tag) bool {
 		JoinFKs:     fks,
 		Polymorphic: typeField,
 	})
+
 	return true
 }
 
@@ -878,11 +910,13 @@ func (t *Table) mustM2MRelation(field *Field, pgTag *tagparser.Tag) bool {
 				fkName := fkPrefix + pk.SQLName
 				if m2mTable.getField(fkName) != nil {
 					baseFKs = append(baseFKs, fkName)
+
 					continue
 				}
 
 				if m2mTable.getField(pk.SQLName) != nil {
 					baseFKs = append(baseFKs, pk.SQLName)
+
 					continue
 				}
 
@@ -915,11 +949,13 @@ func (t *Table) mustM2MRelation(field *Field, pgTag *tagparser.Tag) bool {
 				fkName := joinFKPrefix + joinPK.SQLName
 				if m2mTable.getField(fkName) != nil {
 					joinFKs = append(joinFKs, fkName)
+
 					continue
 				}
 
 				if m2mTable.getField(joinPK.SQLName) != nil {
 					joinFKs = append(joinFKs, joinPK.SQLName)
+
 					continue
 				}
 
@@ -941,21 +977,24 @@ func (t *Table) mustM2MRelation(field *Field, pgTag *tagparser.Tag) bool {
 		M2MBaseFKs:    baseFKs,
 		M2MJoinFKs:    joinFKs,
 	})
+
 	return true
 }
 
-//nolint
 func (t *Table) tryRelationSlice(field *Field, pgTag *tagparser.Tag) bool {
 	if t.tryM2MRelation(field, pgTag) {
 		internal.Deprecated.Printf(
 			`add pg:"rel:many2many" to %s.%s field tag`, t.TypeName, field.GoName)
+
 		return true
 	}
 	if t.tryHasManyRelation(field, pgTag) {
 		internal.Deprecated.Printf(
 			`add pg:"rel:has-many" to %s.%s field tag`, t.TypeName, field.GoName)
+
 		return true
 	}
+
 	return false
 }
 
@@ -1054,6 +1093,7 @@ func (t *Table) tryM2MRelation(field *Field, pgTag *tagparser.Tag) bool {
 		M2MBaseFKs:    fks,
 		M2MJoinFKs:    joinFKs,
 	})
+
 	return true
 }
 
@@ -1120,6 +1160,7 @@ func (t *Table) tryHasManyRelation(field *Field, pgTag *tagparser.Tag) bool {
 			JoinFKs:     fks,
 			Polymorphic: typeField,
 		})
+
 		return true
 	}
 
@@ -1137,6 +1178,7 @@ func (t *Table) tryRelationStruct(field *Field, pgTag *tagparser.Tag) bool {
 		internal.Deprecated.Printf(
 			`add pg:"rel:has-one" to %s.%s field tag`, t.TypeName, field.GoName)
 		t.inlineFields(field, nil)
+
 		return true
 	}
 
@@ -1144,10 +1186,12 @@ func (t *Table) tryRelationStruct(field *Field, pgTag *tagparser.Tag) bool {
 		internal.Deprecated.Printf(
 			`add pg:"rel:belongs-to" to %s.%s field tag`, t.TypeName, field.GoName)
 		t.inlineFields(field, nil)
+
 		return true
 	}
 
 	t.inlineFields(field, nil)
+
 	return false
 }
 
@@ -1191,6 +1235,7 @@ func appendNew(dst []int, src ...int) []int {
 	cp := make([]int, len(dst)+len(src))
 	copy(cp, dst)
 	copy(cp[len(dst):], src)
+
 	return cp
 }
 
@@ -1203,11 +1248,13 @@ func fieldSQLType(field *Field, pgTag *tagparser.Tag) string {
 		typ, _ = tagparser.Unquote(typ)
 		field.UserSQLType = typ
 		typ = normalizeSQLType(typ)
+
 		return typ
 	}
 
 	if typ, ok := pgTag.Options["composite"]; ok {
 		typ, _ = tagparser.Unquote(typ)
+
 		return typ
 	}
 
@@ -1221,60 +1268,81 @@ func fieldSQLType(field *Field, pgTag *tagparser.Tag) string {
 		switch field.Type.Kind() {
 		case reflect.Slice, reflect.Array:
 			sqlType := sqlType(field.Type.Elem())
+
 			return sqlType + "[]"
 		}
 	}
 
 	sqlType := sqlType(field.Type)
+
 	return sqlType
 }
 
 func sqlType(typ reflect.Type) string {
 	switch typ {
 	case timeType, nullTimeType, sqlNullTimeType:
+
 		return pgTypeTimestampTz
 	case ipType:
+
 		return pgTypeInet
 	case ipNetType:
+
 		return pgTypeCidr
 	case nullBoolType:
+
 		return pgTypeBoolean
 	case nullFloatType:
+
 		return pgTypeDoublePrecision
 	case nullIntType:
+
 		return pgTypeBigint
 	case nullStringType:
+
 		return pgTypeText
 	case jsonRawMessageType:
+
 		return pgTypeJSONB
 	}
 
 	switch typ.Kind() {
 	case reflect.Int8, reflect.Uint8, reflect.Int16:
+
 		return pgTypeSmallint
 	case reflect.Uint16, reflect.Int32:
+
 		return pgTypeInteger
 	case reflect.Uint32, reflect.Int64, reflect.Int:
+
 		return pgTypeBigint
 	case reflect.Uint, reflect.Uint64:
 		// Unsigned bigint is not supported - use bigint.
+
 		return pgTypeBigint
 	case reflect.Float32:
+
 		return pgTypeReal
 	case reflect.Float64:
+
 		return pgTypeDoublePrecision
 	case reflect.Bool:
+
 		return pgTypeBoolean
 	case reflect.String:
+
 		return pgTypeText
 	case reflect.Map, reflect.Struct:
+
 		return pgTypeJSONB
 	case reflect.Array, reflect.Slice:
 		if typ.Elem().Kind() == reflect.Uint8 {
 			return pgTypeBytea
 		}
+
 		return pgTypeJSONB
 	default:
+
 		return typ.Kind().String()
 	}
 }
@@ -1282,16 +1350,22 @@ func sqlType(typ reflect.Type) string {
 func normalizeSQLType(s string) string {
 	switch s {
 	case "int2":
+
 		return pgTypeSmallint
 	case "int4", "int", "serial":
+
 		return pgTypeInteger
 	case "int8", pgTypeBigserial:
+
 		return pgTypeBigint
 	case "float4":
+
 		return pgTypeReal
 	case "float8":
+
 		return pgTypeDoublePrecision
 	}
+
 	return s
 }
 
@@ -1319,8 +1393,10 @@ func (t *Table) tryHasOne(joinTable *Table, field *Field, pgTag *tagparser.Tag) 
 			BaseFKs:   fks,
 			JoinFKs:   joinTable.PKs,
 		})
+
 		return true
 	}
+
 	return false
 }
 
@@ -1344,8 +1420,10 @@ func (t *Table) tryBelongsToOne(joinTable *Table, field *Field, pgTag *tagparser
 			BaseFKs:   t.PKs,
 			JoinFKs:   fks,
 		})
+
 		return true
 	}
+
 	return false
 }
 
@@ -1368,6 +1446,7 @@ func foreignKeys(base, join *Table, fk string, tryFK bool) []*Field {
 		f := join.getField(fkName)
 		if f != nil && sqlTypeEqual(pk.SQLType, f.SQLType) {
 			fks = append(fks, f)
+
 			continue
 		}
 
@@ -1378,6 +1457,7 @@ func foreignKeys(base, join *Table, fk string, tryFK bool) []*Field {
 		f = join.getField(pk.SQLName)
 		if f != nil && sqlTypeEqual(pk.SQLType, f.SQLType) {
 			fks = append(fks, f)
+
 			continue
 		}
 	}
@@ -1432,6 +1512,7 @@ func scanJSONValue(v reflect.Value, rd types.Reader, n int) error {
 
 	dec := pgjson.NewDecoder(rd)
 	dec.UseNumber()
+
 	return dec.Decode(v.Addr().Interface())
 }
 
@@ -1450,6 +1531,7 @@ func tryUnderscorePrefix(s string) string {
 	if c := s[0]; internal.IsUpper(c) {
 		return internal.Underscore(s) + "_"
 	}
+
 	return s
 }
 
@@ -1459,6 +1541,7 @@ func quoteTableName(s string) types.Safe {
 		strings.IndexByte(s, '(') >= 0 && strings.IndexByte(s, ')') >= 0 {
 		return types.Safe(s)
 	}
+
 	return quoteIdent(s)
 }
 
@@ -1469,35 +1552,44 @@ func quoteIdent(s string) types.Safe {
 func setSoftDeleteFieldFunc(typ reflect.Type) func(fv reflect.Value) error {
 	switch typ {
 	case timeType:
+
 		return func(fv reflect.Value) error {
-			ptr := fv.Addr().Interface().(*time.Time)
+			ptr := fv.Addr().Interface().(*time.Time) //nolint:forcetypeassert
 			*ptr = time.Now()
+
 			return nil
 		}
 	case nullTimeType:
+
 		return func(fv reflect.Value) error {
-			ptr := fv.Addr().Interface().(*types.NullTime)
+			ptr := fv.Addr().Interface().(*types.NullTime) //nolint:forcetypeassert
 			*ptr = types.NullTime{Time: time.Now()}
+
 			return nil
 		}
 	case nullIntType:
+
 		return func(fv reflect.Value) error {
-			ptr := fv.Addr().Interface().(*sql.NullInt64)
+			ptr := fv.Addr().Interface().(*sql.NullInt64) //nolint:forcetypeassert
 			*ptr = sql.NullInt64{Int64: time.Now().UnixNano()}
+
 			return nil
 		}
 	}
 
 	switch typ.Kind() {
 	case reflect.Int64:
+
 		return func(fv reflect.Value) error {
-			ptr := fv.Addr().Interface().(*int64)
+			ptr := fv.Addr().Interface().(*int64) //nolint:forcetypeassert
 			*ptr = time.Now().UnixNano()
+
 			return nil
 		}
 	case reflect.Ptr:
 		break
 	default:
+
 		return setSoftDeleteFallbackFunc(typ)
 	}
 
@@ -1506,18 +1598,22 @@ func setSoftDeleteFieldFunc(typ reflect.Type) func(fv reflect.Value) error {
 
 	switch typ { //nolint:gocritic
 	case timeType:
+
 		return func(fv reflect.Value) error {
 			now := time.Now()
 			fv.Set(reflect.ValueOf(&now))
+
 			return nil
 		}
 	}
 
 	switch typ.Kind() { //nolint:gocritic
 	case reflect.Int64:
+
 		return func(fv reflect.Value) error {
 			utime := time.Now().UnixNano()
 			fv.Set(reflect.ValueOf(&utime))
+
 			return nil
 		}
 	}
@@ -1534,6 +1630,7 @@ func setSoftDeleteFallbackFunc(typ reflect.Type) func(fv reflect.Value) error {
 	return func(fv reflect.Value) error {
 		var flags int
 		b := types.AppendTime(nil, time.Now(), flags)
+
 		return scanner(fv, pool.NewBytesReader(b), len(b))
 	}
 }
@@ -1545,8 +1642,10 @@ func isKnownTableOption(name string) bool {
 		"tablespace",
 		"partition_by",
 		"discard_unknown_columns":
+
 		return true
 	}
+
 	return false
 }
 
@@ -1574,7 +1673,9 @@ func isKnownFieldOption(name string) bool {
 		"join_fk",
 		"many2many",
 		"polymorphic":
+
 		return true
 	}
+
 	return false
 }

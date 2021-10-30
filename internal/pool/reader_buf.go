@@ -37,6 +37,7 @@ func (b *BufReader) BytesReader(n int) *BytesReader {
 	buf := b.buf[b.r : b.r+n]
 	b.r += n
 	b.brd.Reset(buf)
+
 	return &b.brd
 }
 
@@ -66,6 +67,7 @@ func (b *BufReader) Buffered() int {
 	if b.available == -1 || buffered <= b.available {
 		return buffered
 	}
+
 	return b.available
 }
 
@@ -77,6 +79,7 @@ func (b *BufReader) Bytes() []byte {
 	if w > b.w {
 		w = b.w
 	}
+
 	return b.buf[b.r:w]
 }
 
@@ -84,6 +87,7 @@ func (b *BufReader) flush() []byte {
 	if b.available == -1 {
 		buf := b.buf[b.r:b.w]
 		b.r = b.w
+
 		return buf
 	}
 
@@ -94,6 +98,7 @@ func (b *BufReader) flush() []byte {
 	buf := b.buf[b.r:w]
 	b.r = w
 	b.changeAvailable(-len(buf))
+
 	return buf
 }
 
@@ -111,6 +116,7 @@ func (b *BufReader) fill() {
 	}
 	if b.available == 0 {
 		b.err = io.EOF
+
 		return
 	}
 
@@ -121,6 +127,7 @@ func (b *BufReader) fill() {
 		b.w += n
 		if err != nil {
 			b.err = err
+
 			return
 		}
 		if n > 0 {
@@ -133,6 +140,7 @@ func (b *BufReader) fill() {
 func (b *BufReader) readErr() error {
 	err := b.err
 	b.err = nil
+
 	return err
 }
 
@@ -163,6 +171,7 @@ func (b *BufReader) Read(p []byte) (n int, err error) {
 				b.changeAvailable(-n)
 				b.lastByte = int(p[n-1])
 			}
+
 			return n, err
 		}
 
@@ -182,6 +191,7 @@ func (b *BufReader) Read(p []byte) (n int, err error) {
 	b.r += n
 	b.changeAvailable(-n)
 	b.lastByte = int(b.buf[b.r-1])
+
 	return n, nil
 }
 
@@ -203,6 +213,7 @@ func (b *BufReader) ReadSlice(delim byte) (line []byte, err error) {
 			line = b.buf[b.r : b.r+i]
 			b.r += i
 			b.changeAvailable(-i)
+
 			break
 		}
 
@@ -210,6 +221,7 @@ func (b *BufReader) ReadSlice(delim byte) (line []byte, err error) {
 		if b.err != nil {
 			line = b.flush()
 			err = b.readErr()
+
 			break
 		}
 
@@ -219,6 +231,7 @@ func (b *BufReader) ReadSlice(delim byte) (line []byte, err error) {
 		if b.available != -1 && buffered >= b.available {
 			line = b.flush()
 			err = io.EOF
+
 			break
 		}
 
@@ -226,6 +239,7 @@ func (b *BufReader) ReadSlice(delim byte) (line []byte, err error) {
 		if buffered >= len(b.buf) {
 			line = b.flush()
 			err = bufio.ErrBufferFull
+
 			break
 		}
 
@@ -248,6 +262,7 @@ func (b *BufReader) ReadBytes(fn func(byte) bool) (line []byte, err error) {
 				line = b.buf[b.r : b.r+i] //nolint
 				b.r += i
 				b.changeAvailable(-i)
+
 				break
 			}
 		}
@@ -256,6 +271,7 @@ func (b *BufReader) ReadBytes(fn func(byte) bool) (line []byte, err error) {
 		if b.err != nil {
 			line = b.flush()
 			err = b.readErr()
+
 			break
 		}
 
@@ -265,6 +281,7 @@ func (b *BufReader) ReadBytes(fn func(byte) bool) (line []byte, err error) {
 		if b.available != -1 && buffered >= b.available {
 			line = b.flush()
 			err = io.EOF
+
 			break
 		}
 
@@ -272,6 +289,7 @@ func (b *BufReader) ReadBytes(fn func(byte) bool) (line []byte, err error) {
 		if buffered >= len(b.buf) {
 			line = b.flush()
 			err = bufio.ErrBufferFull
+
 			break
 		}
 
@@ -300,6 +318,7 @@ func (b *BufReader) ReadByte() (byte, error) {
 	b.r++
 	b.lastByte = int(c)
 	b.changeAvailable(-1)
+
 	return c, nil
 }
 
@@ -317,6 +336,7 @@ func (b *BufReader) UnreadByte() error {
 	b.buf[b.r] = byte(b.lastByte)
 	b.lastByte = -1
 	b.changeAvailable(+1)
+
 	return nil
 }
 
@@ -377,6 +397,7 @@ func (b *BufReader) ReadN(n int) (line []byte, err error) {
 			if n > nn {
 				err = io.EOF
 			}
+
 			break
 		}
 
@@ -384,6 +405,7 @@ func (b *BufReader) ReadN(n int) (line []byte, err error) {
 		if b.err != nil {
 			line = b.flush()
 			err = b.readErr()
+
 			break
 		}
 
@@ -391,6 +413,7 @@ func (b *BufReader) ReadN(n int) (line []byte, err error) {
 		if buffered >= len(b.buf) {
 			line = b.flush()
 			err = bufio.ErrBufferFull
+
 			break
 		}
 
@@ -411,6 +434,7 @@ func (b *BufReader) ReadFull() ([]byte, error) {
 	}
 	buf := make([]byte, b.available)
 	_, err := io.ReadFull(b, buf)
+
 	return buf, err
 }
 
@@ -421,11 +445,13 @@ func (b *BufReader) ReadFullTemp() ([]byte, error) {
 	if b.available <= len(b.buf) {
 		return b.ReadN(b.available)
 	}
+
 	return b.ReadFull()
 }
 
 func (b *BufReader) read(buf []byte) (int, error) {
 	n, err := b.rd.Read(buf)
 	b.bytesRead += int64(n)
+
 	return n, err
 }

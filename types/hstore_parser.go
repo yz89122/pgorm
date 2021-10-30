@@ -22,9 +22,10 @@ func newHstoreParser(rd Reader) *hstoreParser {
 func (p *hstoreParser) NextKey() ([]byte, error) {
 	err := p.p.SkipByte('"')
 	if err != nil {
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			return nil, errEndOfHstore
 		}
+
 		return nil, err
 	}
 

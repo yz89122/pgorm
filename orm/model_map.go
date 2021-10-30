@@ -19,6 +19,7 @@ func newMapModel(ptr *map[string]interface{}) *mapModel {
 	if ptr != nil {
 		model.m = *ptr
 	}
+
 	return model
 }
 
@@ -31,6 +32,7 @@ func (m *mapModel) NextColumnScanner() ColumnScanner {
 		m.m = make(map[string]interface{})
 		*m.ptr = m.m
 	}
+
 	return m
 }
 
@@ -45,6 +47,7 @@ func (m *mapModel) ScanColumn(col types.ColumnInfo, rd types.Reader, n int) erro
 	}
 
 	m.m[col.Name] = val
+
 	return nil
 }
 

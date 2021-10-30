@@ -83,18 +83,23 @@ func Scanner(typ reflect.Type) ScannerFunc {
 	}
 	fn := scanner(typ, false)
 	_, _ = scannersMap.LoadOrStore(typ, fn)
+
 	return fn
 }
 
 func scanner(typ reflect.Type, pgArray bool) ScannerFunc {
 	switch typ {
 	case timeType:
+
 		return scanTimeValue
 	case ipType:
+
 		return scanIPValue
 	case ipNetType:
+
 		return scanIPNetValue
 	case jsonRawMessageType:
+
 		return scanJSONRawMessageValue
 	}
 
@@ -115,6 +120,7 @@ func scanner(typ reflect.Type, pgArray bool) ScannerFunc {
 	kind := typ.Kind()
 	switch kind {
 	case reflect.Ptr:
+
 		return ptrScannerFunc(typ)
 	case reflect.Slice:
 		if typ.Elem().Kind() == reflect.Uint8 {
@@ -128,11 +134,13 @@ func scanner(typ reflect.Type, pgArray bool) ScannerFunc {
 			return scanArrayBytesValue
 		}
 	}
+
 	return valueScanners[kind]
 }
 
 func ptrScannerFunc(typ reflect.Type) ScannerFunc {
 	scanner := Scanner(typ.Elem())
+
 	return func(v reflect.Value, rd Reader, n int) error {
 		if scanner == nil {
 			return fmt.Errorf("pg: Scan(unsupported %s)", v.Type())
@@ -146,6 +154,7 @@ func ptrScannerFunc(typ reflect.Type) ScannerFunc {
 				return fmt.Errorf("pg: Scan(non-settable %s)", v.Type())
 			}
 			v.Set(reflect.Zero(v.Type()))
+
 			return nil
 		}
 
@@ -164,6 +173,7 @@ func scanIfaceValue(v reflect.Value, rd Reader, n int) error {
 	if v.IsNil() {
 		return scanJSONValue(v, rd, n)
 	}
+
 	return ScanValue(v.Elem(), rd, n)
 }
 
@@ -172,20 +182,21 @@ func ScanValue(v reflect.Value, rd Reader, n int) error {
 		return errors.New("pg: Scan(nil)")
 	}
 
-	scanner := Scanner(v.Type())
-	if scanner != nil {
+	if scanner := Scanner(v.Type()); scanner != nil {
 		return scanner(v, rd, n)
 	}
 
 	if v.Kind() == reflect.Interface {
 		return errors.New("pg: Scan(nil)")
 	}
+
 	return fmt.Errorf("pg: Scan(unsupported %s)", v.Type())
 }
 
 func scanBoolValue(v reflect.Value, rd Reader, n int) error {
 	if n == -1 {
 		v.SetBool(false)
+
 		return nil
 	}
 
@@ -195,6 +206,7 @@ func scanBoolValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.SetBool(flag)
+
 	return nil
 }
 
@@ -205,6 +217,7 @@ func scanInt64Value(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.SetInt(num)
+
 	return nil
 }
 
@@ -215,6 +228,7 @@ func scanUint64Value(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.SetUint(num)
+
 	return nil
 }
 
@@ -225,6 +239,7 @@ func scanFloat32Value(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.SetFloat(float64(num))
+
 	return nil
 }
 
@@ -235,6 +250,7 @@ func scanFloat64Value(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.SetFloat(num)
+
 	return nil
 }
 
@@ -245,6 +261,7 @@ func scanStringValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.SetString(s)
+
 	return nil
 }
 
@@ -258,6 +275,7 @@ func scanJSONValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	dec := pgjson.NewDecoder(rd)
+
 	return dec.Decode(v.Addr().Interface())
 }
 
@@ -267,7 +285,7 @@ func scanTimeValue(v reflect.Value, rd Reader, n int) error {
 		return err
 	}
 
-	ptr := v.Addr().Interface().(*time.Time)
+	ptr := v.Addr().Interface().(*time.Time) //nolint:forcetypeassert
 	*ptr = tm
 
 	return nil
@@ -288,7 +306,7 @@ func scanIPValue(v reflect.Value, rd Reader, n int) error {
 		return fmt.Errorf("pg: invalid ip=%q", tmp)
 	}
 
-	ptr := v.Addr().Interface().(*net.IP)
+	ptr := v.Addr().Interface().(*net.IP) //nolint:forcetypeassert
 	*ptr = ip
 
 	return nil
@@ -299,6 +317,7 @@ var zeroIPNetValue = reflect.ValueOf(net.IPNet{})
 func scanIPNetValue(v reflect.Value, rd Reader, n int) error {
 	if n == -1 {
 		v.Set(zeroIPNetValue)
+
 		return nil
 	}
 
@@ -312,7 +331,7 @@ func scanIPNetValue(v reflect.Value, rd Reader, n int) error {
 		return err
 	}
 
-	ptr := v.Addr().Interface().(*net.IPNet)
+	ptr := v.Addr().Interface().(*net.IPNet) //nolint:forcetypeassert
 	*ptr = *ipnet
 
 	return nil
@@ -321,6 +340,7 @@ func scanIPNetValue(v reflect.Value, rd Reader, n int) error {
 func scanJSONRawMessageValue(v reflect.Value, rd Reader, n int) error {
 	if n == -1 {
 		v.SetBytes(nil)
+
 		return nil
 	}
 
@@ -330,12 +350,14 @@ func scanJSONRawMessageValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.SetBytes(b)
+
 	return nil
 }
 
 func scanBytesValue(v reflect.Value, rd Reader, n int) error {
 	if n == -1 {
 		v.SetBytes(nil)
+
 		return nil
 	}
 
@@ -345,6 +367,7 @@ func scanBytesValue(v reflect.Value, rd Reader, n int) error {
 	}
 
 	v.SetBytes(b)
+
 	return nil
 }
 
@@ -355,6 +378,7 @@ func scanArrayBytesValue(v reflect.Value, rd Reader, n int) error {
 		for i := range b {
 			b[i] = 0
 		}
+
 		return nil
 	}
 
@@ -366,6 +390,7 @@ func scanValueScannerValue(v reflect.Value, rd Reader, n int) error {
 		if v.IsNil() {
 			return nil
 		}
+
 		return v.Interface().(ValueScanner).ScanValue(rd, n)
 	}
 
@@ -380,6 +405,7 @@ func scanValueScannerAddrValue(v reflect.Value, rd Reader, n int) error {
 	if !v.CanAddr() {
 		return fmt.Errorf("pg: Scan(non-settable %s)", v.Type())
 	}
+
 	return v.Addr().Interface().(ValueScanner).ScanValue(rd, n)
 }
 
@@ -388,6 +414,7 @@ func scanSQLScannerValue(v reflect.Value, rd Reader, n int) error {
 		if nilable(v) && v.IsNil() {
 			return nil
 		}
+
 		return scanSQLScanner(v.Interface().(sql.Scanner), rd, n)
 	}
 
@@ -402,6 +429,7 @@ func scanSQLScannerAddrValue(v reflect.Value, rd Reader, n int) error {
 	if !v.CanAddr() {
 		return fmt.Errorf("pg: Scan(non-settable %s)", v.Type())
 	}
+
 	return scanSQLScanner(v.Addr().Interface().(sql.Scanner), rd, n)
 }
 
@@ -414,5 +442,6 @@ func scanSQLScanner(scanner sql.Scanner, rd Reader, n int) error {
 	if err != nil {
 		return err
 	}
+
 	return scanner.Scan(tmp)
 }

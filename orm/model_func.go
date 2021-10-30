@@ -39,6 +39,7 @@ func newFuncModel(fn interface{}) *funcModel {
 
 	if fnt.NumIn() > 1 {
 		initFuncModelScan(m, fnt)
+
 		return m
 	}
 
@@ -56,6 +57,7 @@ func newFuncModel(fn interface{}) *funcModel {
 	model, ok := v0.Interface().(Model)
 	if ok {
 		m.Model = model
+
 		return m
 	}
 
@@ -85,5 +87,6 @@ func (m *funcModel) AddColumnScanner(_ ColumnScanner) error {
 	if !errv.IsNil() {
 		return errv.Interface().(error)
 	}
+
 	return nil
 }

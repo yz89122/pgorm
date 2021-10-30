@@ -29,6 +29,7 @@ func newSliceTableModel(slice reflect.Value, elemType reflect.Type) *sliceTableM
 		nextElem: internal.MakeSliceNextElemFunc(slice),
 	}
 	m.init(slice.Type())
+
 	return m
 }
 
@@ -50,8 +51,10 @@ func (m *sliceTableModel) AppendParam(fmter QueryFormatter, b []byte, name strin
 	if field, ok := m.table.FieldsMap[name]; ok {
 		b = append(b, "_data."...)
 		b = append(b, field.Column...)
+
 		return b, true
 	}
+
 	return m.structTableModel.AppendParam(fmter, b, name)
 }
 
@@ -75,12 +78,14 @@ func (m *sliceTableModel) Init() error {
 	if m.slice.IsValid() && m.slice.Len() > 0 {
 		m.slice.Set(m.slice.Slice(0, 0))
 	}
+
 	return nil
 }
 
 func (m *sliceTableModel) NextColumnScanner() ColumnScanner {
 	m.strct = m.nextElem()
 	m.structInited = false
+
 	return m
 }
 
@@ -98,6 +103,7 @@ func (m *sliceTableModel) AfterSelect(ctx context.Context) error {
 	if m.table.hasFlag(afterSelectHookFlag) {
 		return callAfterSelectHookSlice(ctx, m.slice, m.sliceOfPtr)
 	}
+
 	return nil
 }
 
@@ -105,6 +111,7 @@ func (m *sliceTableModel) BeforeInsert(ctx context.Context) (context.Context, er
 	if m.table.hasFlag(beforeInsertHookFlag) {
 		return callBeforeInsertHookSlice(ctx, m.slice, m.sliceOfPtr)
 	}
+
 	return ctx, nil
 }
 
@@ -112,6 +119,7 @@ func (m *sliceTableModel) AfterInsert(ctx context.Context) error {
 	if m.table.hasFlag(afterInsertHookFlag) {
 		return callAfterInsertHookSlice(ctx, m.slice, m.sliceOfPtr)
 	}
+
 	return nil
 }
 
@@ -119,6 +127,7 @@ func (m *sliceTableModel) BeforeUpdate(ctx context.Context) (context.Context, er
 	if m.table.hasFlag(beforeUpdateHookFlag) && !m.IsNil() {
 		return callBeforeUpdateHookSlice(ctx, m.slice, m.sliceOfPtr)
 	}
+
 	return ctx, nil
 }
 
@@ -126,6 +135,7 @@ func (m *sliceTableModel) AfterUpdate(ctx context.Context) error {
 	if m.table.hasFlag(afterUpdateHookFlag) {
 		return callAfterUpdateHookSlice(ctx, m.slice, m.sliceOfPtr)
 	}
+
 	return nil
 }
 
@@ -133,6 +143,7 @@ func (m *sliceTableModel) BeforeDelete(ctx context.Context) (context.Context, er
 	if m.table.hasFlag(beforeDeleteHookFlag) && !m.IsNil() {
 		return callBeforeDeleteHookSlice(ctx, m.slice, m.sliceOfPtr)
 	}
+
 	return ctx, nil
 }
 
@@ -140,6 +151,7 @@ func (m *sliceTableModel) AfterDelete(ctx context.Context) error {
 	if m.table.hasFlag(afterDeleteHookFlag) && !m.IsNil() {
 		return callAfterDeleteHookSlice(ctx, m.slice, m.sliceOfPtr)
 	}
+
 	return nil
 }
 
@@ -152,5 +164,6 @@ func (m *sliceTableModel) setSoftDeleteField() error {
 			return err
 		}
 	}
+
 	return nil
 }

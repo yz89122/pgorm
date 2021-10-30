@@ -14,6 +14,7 @@ import (
 type ValuerError string
 
 func (e ValuerError) Value() (driver.Value, error) {
+
 	return nil, errors.New(string(e))
 }
 
@@ -26,18 +27,22 @@ type StructFormatter struct {
 }
 
 func (StructFormatter) Method() string {
+
 	return "method_value"
 }
 
 func (StructFormatter) MethodParam() types.Safe {
+
 	return "?string"
 }
 
 func (StructFormatter) MethodWithArgs(string) string {
+
 	return "method_value"
 }
 
 func (StructFormatter) MethodWithCompositeReturn() (string, string) {
+
 	return "method_value1", "method_value2"
 }
 
@@ -46,6 +51,7 @@ type EmbeddedStructFormatter struct {
 }
 
 func (EmbeddedStructFormatter) Method2() string {
+
 	return "method_value2"
 }
 
