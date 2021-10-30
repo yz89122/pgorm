@@ -31,9 +31,9 @@ but works with PostgreSQL, MySQL, and SQLite.
   you need to update your imports:
 
 ```
-github.com/go-pg/pg/extra/pgdebug -> github.com/go-pg/pg/extra/pgdebug/v10
-github.com/go-pg/pg/extra/pgotel -> github.com/go-pg/pg/extra/pgotel/v10
-github.com/go-pg/pg/extra/pgsegment -> github.com/go-pg/pg/extra/pgsegment/v10
+github.com/yz89122/pgorm/extra/pgdebug -> github.com/yz89122/pgorm/extra/pgdebug/v10
+github.com/yz89122/pgorm/extra/pgotel -> github.com/yz89122/pgorm/extra/pgotel/v10
+github.com/yz89122/pgorm/extra/pgsegment -> github.com/yz89122/pgorm/extra/pgsegment/v10
 ```
 
 - Exported `pg.Query` which should be used instead of `orm.Query`.

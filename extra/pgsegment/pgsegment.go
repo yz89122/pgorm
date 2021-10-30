@@ -5,7 +5,7 @@ import (
 
 	"github.com/segmentio/encoding/json"
 
-	"github.com/go-pg/pg/v10/pgjson"
+	"github.com/yz89122/pgorm/v10/pgjson"
 )
 
 var _ pgjson.Provider = (*JSONProvider)(nil)

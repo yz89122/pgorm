@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/go-pg/pg/v10"
+	"github.com/yz89122/pgorm/v10"
 )
 
 type Test struct {

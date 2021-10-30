@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-pg/pg/v10/orm"
+	"github.com/yz89122/pgorm/v10/orm"
 )
 
 type (

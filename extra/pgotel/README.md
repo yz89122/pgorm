@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-go get github.com/go-pg/pg/extra/pgotel/v10
+go get github.com/yz89122/pgorm/extra/pgotel/v10
 ```
 
 ## Usage
@@ -12,8 +12,8 @@ Tracing is enabled by adding a query hook:
 
 ```go
 import (
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/extra/pgotel/v10"
+	"github.com/yz89122/pgorm/v10"
+	"github.com/yz89122/pgorm/extra/pgotel/v10"
 )
 
 db := pg.Connect(&pg.Options{...})
