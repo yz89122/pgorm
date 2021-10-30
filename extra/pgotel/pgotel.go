@@ -10,11 +10,11 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
+	pg "github.com/yz89122/pgorm/v10"
+	"github.com/yz89122/pgorm/v10/orm"
 )
 
-var tracer = otel.Tracer("github.com/go-pg/pg")
+var tracer = otel.Tracer("github.com/yz89122/pgorm")
 
 type queryOperation interface {
 	Operation() orm.QueryOp
@@ -97,7 +97,7 @@ func (h *TracingHook) AfterQuery(ctx context.Context, evt *pg.QueryEvent) error 
 		query = query[:hardQueryLimit]
 	}
 
-	fn, file, line := funcFileLine("github.com/go-pg/pg")
+	fn, file, line := funcFileLine("github.com/yz89122/pgorm")
 
 	attrs := make([]attribute.KeyValue, 0, 10)
 	attrs = append(attrs,

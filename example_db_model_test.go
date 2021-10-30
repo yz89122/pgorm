@@ -3,8 +3,8 @@ package pg_test
 import (
 	"fmt"
 
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
+	"github.com/yz89122/pgorm/v10"
+	"github.com/yz89122/pgorm/v10/orm"
 )
 
 type User struct {
@@ -30,8 +30,10 @@ func (s Story) String() string {
 
 func ExampleDB_Model() {
 	db := pg.Connect(&pg.Options{
-		User:     "postgres",
-		Password: "postgres",
+		User:      pgUser(),
+		Password:  pgPassword(),
+		Addr:      pgAddr(),
+		TLSConfig: getTLSConfig(),
 	})
 	defer db.Close()
 

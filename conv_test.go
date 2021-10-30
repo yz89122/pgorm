@@ -13,10 +13,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
-	"github.com/go-pg/pg/v10/pgjson"
-	"github.com/go-pg/pg/v10/types"
+	"github.com/yz89122/pgorm/v10"
+	"github.com/yz89122/pgorm/v10/orm"
+	"github.com/yz89122/pgorm/v10/pgjson"
+	"github.com/yz89122/pgorm/v10/types"
 )
 
 type JSONMap map[string]interface{}
@@ -536,7 +536,7 @@ func TestReadColumnValue(t *testing.T) {
 		var m map[string]interface{}
 		err := db.Model().ColumnExpr("?::? AS col", value, pg.Safe(test.pgtype)).Select(&m)
 		assert.Nil(t, err)
-		assert.Equal(t, m["col"], test.value)
+		assert.Equal(t, m["col"], test.value, test.pgtype)
 	}
 
 	var mm []map[string]interface{}

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/go-pg/pg/v10/types"
+	"github.com/yz89122/pgorm/v10/types"
 )
 
 var _tables = newTables()

@@ -11,8 +11,8 @@ import (
 
 	"github.com/vmihailenco/bufpool"
 
-	"github.com/go-pg/pg/v10/internal"
-	"github.com/go-pg/pg/v10/pgjson"
+	"github.com/yz89122/pgorm/v10/internal"
+	"github.com/yz89122/pgorm/v10/pgjson"
 )
 
 var (

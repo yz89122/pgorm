@@ -8,16 +8,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
-	"github.com/go-pg/pg/v10/types"
+	"github.com/yz89122/pgorm/v10"
+	"github.com/yz89122/pgorm/v10/orm"
+	"github.com/yz89122/pgorm/v10/types"
 )
 
 func benchmarkDB() *pg.DB {
 	return pg.Connect(&pg.Options{
-		User:         "postgres",
-		Password:     "postgres",
-		Database:     "postgres",
+		User:         pgUser(),
+		Password:     pgPassword(),
+		Database:     pgDatabase(),
+		Addr:         pgAddr(),
 		DialTimeout:  30 * time.Second,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,

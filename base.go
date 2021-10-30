@@ -5,10 +5,10 @@ import (
 	"io"
 	"time"
 
-	"github.com/go-pg/pg/v10/internal"
-	"github.com/go-pg/pg/v10/internal/pool"
-	"github.com/go-pg/pg/v10/orm"
-	"github.com/go-pg/pg/v10/types"
+	"github.com/yz89122/pgorm/v10/internal"
+	"github.com/yz89122/pgorm/v10/internal/pool"
+	"github.com/yz89122/pgorm/v10/orm"
+	"github.com/yz89122/pgorm/v10/types"
 )
 
 type baseDB struct {

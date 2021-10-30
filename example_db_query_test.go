@@ -3,7 +3,7 @@ package pg_test
 import (
 	"fmt"
 
-	"github.com/go-pg/pg/v10"
+	"github.com/yz89122/pgorm/v10"
 )
 
 func CreateUser(db *pg.DB, user *User) error {
@@ -54,8 +54,10 @@ func GetStory(db *pg.DB, id int64) (*Story, error) {
 
 func ExampleDB_Query() {
 	db := pg.Connect(&pg.Options{
-		User:     "postgres",
-		Password: "postgres",
+		User:      pgUser(),
+		Password:  pgPassword(),
+		Addr:      pgAddr(),
+		TLSConfig: getTLSConfig(),
 	})
 
 	err := createSchema(db)

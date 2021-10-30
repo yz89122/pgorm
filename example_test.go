@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
+	"github.com/yz89122/pgorm/v10"
+	"github.com/yz89122/pgorm/v10/orm"
 )
 
 var (
@@ -42,9 +42,10 @@ func panicIf(err error) {
 
 func ExampleConnect() {
 	db := pg.Connect(&pg.Options{
-		User:     "postgres",
-		Password: "postgres",
-		Database: "postgres",
+		User:      pgUser(),
+		Password:  pgPassword(),
+		Addr:      pgAddr(),
+		TLSConfig: getTLSConfig(),
 	})
 	defer db.Close()
 
@@ -115,8 +116,10 @@ func ExampleListener() {
 
 func txExample() *pg.DB {
 	db := pg.Connect(&pg.Options{
-		User:     "postgres",
-		Password: "postgres",
+		User:      pgUser(),
+		Password:  pgPassword(),
+		Addr:      pgAddr(),
+		TLSConfig: getTLSConfig(),
 	})
 
 	queries := []string{

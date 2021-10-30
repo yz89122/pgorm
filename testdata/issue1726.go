@@ -1,9 +1,9 @@
 package main
 
 import (
-	pg "github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
 	"github.com/go-pg/pgext"
+	pg "github.com/yz89122/pgorm/v10"
+	"github.com/yz89122/pgorm/v10/orm"
 )
 
 func init() {

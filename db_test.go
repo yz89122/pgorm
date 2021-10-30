@@ -18,8 +18,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
+	"github.com/yz89122/pgorm/v10"
+	"github.com/yz89122/pgorm/v10/orm"
 )
 
 func init() {
@@ -34,8 +34,9 @@ func TestGinkgo(t *testing.T) {
 
 func pgOptions() *pg.Options {
 	return &pg.Options{
-		User:      "postgres",
-		Password:  "postgres",
+		User:      pgUser(),
+		Password:  pgPassword(),
+		Addr:      pgAddr(),
 		TLSConfig: getTLSConfig(),
 
 		MaxRetries:      1,
@@ -53,6 +54,21 @@ func pgOptions() *pg.Options {
 	}
 }
 
+func env(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func pgUser() string {
+	return env("PGUSER", "postgres")
+}
+
+func pgPassword() string {
+	return env("PGPASSWORD", "postgres")
+}
+
 func getTLSConfig() *tls.Config {
 	pgSSLMode := os.Getenv("PGSSLMODE")
 	if pgSSLMode == "disable" {
@@ -61,6 +77,22 @@ func getTLSConfig() *tls.Config {
 	return &tls.Config{
 		InsecureSkipVerify: true,
 	}
+}
+
+func pgDatabase() string {
+	return env("PGDATABASE", "postgres")
+}
+
+func pgAddr() string {
+	return fmt.Sprintf("%s:%s", pgHost(), pgPort())
+}
+
+func pgHost() string {
+	return env("PGHOST", "localhost")
+}
+
+func pgPort() string {
+	return env("PGPORT", "5432")
 }
 
 var _testDB *pg.DB
