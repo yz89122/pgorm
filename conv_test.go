@@ -536,7 +536,7 @@ func TestReadColumnValue(t *testing.T) {
 		var m map[string]interface{}
 		err := db.Model().ColumnExpr("?::? AS col", value, pg.Safe(test.pgtype)).Select(&m)
 		assert.Nil(t, err)
-		assert.Equal(t, m["col"], test.value)
+		assert.Equal(t, m["col"], test.value, test.pgtype)
 	}
 
 	var mm []map[string]interface{}
